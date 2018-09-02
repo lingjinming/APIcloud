@@ -1,0 +1,51 @@
+<!doctype html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>index</title>
+</head>
+
+<body>
+</body>
+
+</html>
+<script type="text/javascript" src="script/api.js"></script>
+<script type="text/javascript">
+    apiready = function() {
+        // $api.fixStatusBar($api.dom('header'));
+        // api.setStatusBarStyle({
+        //     style: 'dark',
+        //     color: 'red'
+        // });
+        api.showLaunchView();
+
+        openWinLogin(); //登录
+        // openWinMain(); //打开主页面
+    }
+
+    function openWinMain() {
+        api.openWin({
+            name: 'mainWin',
+            url: './html/mainWin.html',
+            bounces: false,
+            pageParam: {
+                key: 'value'
+            }
+        });
+    }
+
+    function openWinLogin() {
+        debugger
+        api.openWin({
+            name: 'loginWin',
+            url: './html/registeWin.html',
+            bounces: false,
+            pageParam: {
+                key: 'value'
+            }
+        });
+    }
+</script>
