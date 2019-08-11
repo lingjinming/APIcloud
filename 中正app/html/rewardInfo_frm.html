@@ -1,0 +1,656 @@
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0">
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>悬赏详情页面</title>
+    <link rel="stylesheet" type="text/css" href="../css/style.css">
+    <link rel="stylesheet" type="text/css" href="../css/publish.css">
+    <style>
+        .info-con-items span {
+            width: auto;
+            margin-right: 5px
+        }
+
+        .typeInfoP {
+            width: 33%;
+            float: left;
+        }
+
+        .typeInfoP:last-child {
+            float: right;
+            text-align: right;
+        }
+
+        .low-info-con .info-con-items {
+            height: 30px;
+            line-height: 30px
+        }
+
+        .info-con-items3 {
+            height: auto !important;
+            line-height: 1.5 !important;
+            padding-bottom: 10px;
+            padding-top: 10px;
+        }
+
+        .normal-input {
+            text-align: left !important;
+            width: calc(100% - 115px) !important;
+        }
+
+        .img-upload {
+            margin-left: 0;
+        }
+
+        .bigimg-upload {
+            width: 100%;
+            height: 330px;
+            display: flex;
+            display: -webkit-flex;
+        }
+
+        .bigimg {
+            width: 40%;
+            margin-right: 20px;
+        }
+
+        .typeInfoP span {
+            float: none;
+        }
+
+        .bigimg {
+            width: 150px !important;
+        }
+
+        .icon_upload {
+            width: 80px !important;
+            height: 80px !important;
+            position: absolute;
+            left: calc(40% + 40px);
+            top: 0
+        }
+
+        .saveImg {
+            position: relative;
+            z-index: 1;
+            width: 40%;
+        }
+
+        .isApply {
+            position: relative;
+            /* z-index: 22222222222222; */
+        }
+
+        #confirm-publish-btn {
+            z-index: 2222;
+        }
+
+        .shadow {
+            position: relative;
+        }
+
+        .shadow::before {
+            position: absolute;
+            content: '';
+            left: 0;
+            top: 0;
+            width: 40%;
+            height: 100%;
+            z-index: 22;
+            background: rgba(0, 0, 0, .9)
+        }
+        /* .shadow p {
+            text-align: center;
+        } */
+    </style>
+</head>
+
+<body>
+    <div class="info-wrap" style="display:none">
+        <div class="info-con low-info-con" id="detail">
+
+        </div>
+        <div class="info-con">
+            <h3 class="info-title border-b">步骤预览</h3>
+            <div class="info-con-upload-items">
+
+            </div>
+        </div>
+        <div class="info-con marb50" style="padding-bottom: 50px">
+            <div id="preInfo">
+                <h3 class="info-title border-b">输入支付宝用户名1</h3>
+                <div class="info-con-items">
+                    <input type="text" placeholder="请在此输入" class="float-l coloradadad normal-input" id="">
+                </div>
+            </div>
+        </div>
+        <div id="isApply">
+            <div class="btn confirm-publish-btn" id="confirm-publish-btn">立即报名</div>
+        </div>
+    </div>
+
+    <script type="text/javascript" src="../script/api.js"></script>
+    <script type="text/javascript" src="../script/libs/zepto.js"></script>
+    <script type="text/javascript" src="../script/libs/touch.js"></script>
+    <script type="text/javascript" src="../script/globalApp.js"></script>
+
+    <script type="text/javascript">
+        apiready = function() {
+            initPage();
+        };
+
+        //提交
+        $("#confirm-publish-btn").on('click', function() {
+            var pageParam = api.pageParam.pageParam;
+            var rewardId = pageParam.rewardId;
+            var relId = $api.getStorage(rewardId + "rel") == undefined ? '' : $api.getStorage(rewardId + "rel");
+            var params = {
+                taskId: rewardId,
+                userId: $api.getStorage("userId"),
+                relId: relId,
+            };
+            var buttonName = document.getElementById("confirm-publish-btn").innerText;
+            if (buttonName == '立即报名') {
+                api.ajax({
+                    url: globalData.baseUrl + globalData.getTaskByUser,
+                    method: 'post',
+                    data: {
+                        values: params,
+                    }
+                }, function(ret, err) {
+                    if (ret) {
+                        var state = ret.status;
+                        switch (state) {
+                            case '1':
+                                api.toast({
+                                    msg: '报名成功',
+                                    duration: 2000,
+                                    location: 'middle'
+                                });
+                                var divEle = document.getElementById('confirm-publish-btn');
+                                divEle.innerHTML = '提交';
+                                $(".shadow").removeClass('shadow'); //去掉遮罩
+                                $api.setStorage(rewardId + "rel", ret.relId);
+                                break;
+                            case '2':
+                                api.toast({
+                                    msg: '报名失败',
+                                    duration: 2000,
+                                    location: 'middle'
+                                });
+                                break;
+                            case '3':
+                                api.toast({
+                                    msg: '任务已领完',
+                                    duration: 2000,
+                                    location: 'middle'
+                                });
+                                break;
+                            case '4':
+                                api.toast({
+                                    msg: '赏单不存在',
+                                    duration: 2000,
+                                    location: 'middle'
+                                });
+                                break;
+                            case '5':
+                                api.toast({
+                                    msg: '赏单已过期',
+                                    duration: 2000,
+                                    location: 'middle'
+                                });
+                                break;
+                            case '6':
+                                api.toast({
+                                    msg: '领取任务次数上限',
+                                    duration: 2000,
+                                    location: 'middle'
+                                });
+                                break;
+                            case '7':
+                                api.toast({
+                                    msg: '任务已领取',
+                                    duration: 2000,
+                                    location: 'middle'
+                                });
+                                break;
+                        }
+                    } else {
+                        api.toast({
+                            msg: '提交失败',
+                            duration: 2000,
+                            location: 'middle'
+                        });
+
+                    }
+                });
+            } else if (buttonName == '提交' || buttonName == '重新提交') {
+                if ($api.byId("connectInfo").value == '') {
+                    api.toast({
+                        msg: '请输入预留信息',
+                        duration: 2000,
+                        location: 'middle'
+                    });
+                    return false;
+                }
+                var stepIds = $api.getStorage("stepIds");
+                var stepIdsArray = stepIds.split(",");
+                var stepId = '';
+                var stype = '';
+                var stepOrder = 0;
+                for (var i = 0; i < stepIdsArray.length; i++) {
+                    if (stepIdsArray[i] != '') {
+                        stepId = stepIdsArray[i];
+
+                        if ($("#" + stepId).data("ty") == '1') {
+                            if ($("#" + stepId).val() == '') {
+                                api.toast({
+                                    msg: '请完善所需信息',
+                                    duration: 2000,
+                                    location: 'middle'
+                                });
+                                return false;
+                            }
+                        } else {
+                            if ($("#" + stepId).attr('src') == '../image/icon_upload.png') {
+                                api.toast({
+                                    msg: '请完善所需信息',
+                                    duration: 2000,
+                                    location: 'middle'
+                                });
+                                return false;
+                            }
+                        }
+                    }
+                }
+                stepId = '';
+                api.confirm({
+                    title: '提示信息',
+                    msg: '是否确认提交？',
+                    buttons: ['确定', '取消']
+                }, function(ret, err) {
+                    var index = ret.buttonIndex;
+                    if (index == 1) {
+                        submit();
+                    }
+                });
+
+                function submit() {
+                    var relId = $api.getStorage(rewardId + "rel");
+                    var rParam = api.pageParam.pageParam;
+                    var rId = rParam.rewardId;
+                    relId = $api.getStorage(rId + "rel");
+
+                    if (relId == undefined) {
+                        var params = {
+                            rewardId: rId,
+                            userId: $api.getStorage("userId"),
+                        };
+                        api.ajax({
+                            url: globalData.baseUrl + globalData.delUserRelByRewardAndUserId,
+                            method: 'post',
+                            data: {
+                                values: params,
+                            }
+                        }, function(ret, err) {
+                            if (ret.status == 'success') {
+                                api.toast({
+                                    msg: '报名失效，请重新报名',
+                                    duration: 2000,
+                                    location: 'bottom'
+                                });
+                            }
+                            initPage();
+                        });
+                    } else {
+                        for (var i = 0; i < stepIdsArray.length; i++) {
+                            stepOrder = i + 1;
+                            if (stepIdsArray[i] != '') {
+                                stepId = stepIdsArray[i];
+                                stype = $("#" + stepId).data("ty");
+                                var pageParam = api.pageParam.pageParam;
+                                var rewardId = pageParam.rewardId;
+                                var content = '';
+                                var stepFile = '';
+                                if (stype == '1') {
+                                    content = $("#" + stepId).val();
+                                } else {
+                                    stepFile = $("#" + stepId).attr('src');
+                                }
+                                var params = {
+                                    rewardId: rewardId,
+                                    userId: $api.getStorage("userId"),
+                                    stepId: stepId,
+                                    stepOrder: stepOrder,
+                                    stype: stype,
+                                    relId: relId,
+                                    content:content
+                                };
+
+                                api.ajax({
+                                    url: globalData.baseUrl + globalData.userSubmit,
+                                    method: 'post',
+                                    data: {
+                                        values: params,
+                                        files: {
+                                          file:stepFile
+                                        }
+                                    },
+                                }, function(ret, err) {
+                                    if (ret.status == 'success') {
+                                        submit1(rewardId);
+                                    }
+                                });
+                            }
+                        }
+                    }
+                }
+
+                function submit1(rewardId) {
+                    var connectInfo = $api.byId("connectInfo").value;
+                    var params1 = {
+                        relId: relId,
+                        connectInfo: connectInfo,
+                    }
+                    api.ajax({
+                        url: globalData.baseUrl + globalData.savaConnectInfo,
+                        method: 'post',
+                        data: {
+                            values: params1,
+                        }
+                    }, function(ret, err) {
+                        if (ret.status == 'success') {
+                            $api.rmStorage(rewardId + "rel");
+                            api.openWin({
+                                name: 'rewardlist_win',
+                                url: './rewardlist_win.html',
+                                bounces: false,
+                                pageParam: {
+                                    key: 'value'
+                                },
+                            });
+                            initPage();
+                        }
+                    });
+                }
+
+            }
+        });
+
+        function initPage() {
+            api.showProgress({
+                title: '',
+                text: '加载中...',
+                modal: true
+            });
+            var pageParam = api.pageParam.pageParam;
+            var rewardId = pageParam.rewardId;
+            api.ajax({
+                url: globalData.baseUrl + globalData.getRewardStep,
+                method: 'get',
+                data: {
+                    values: {
+                        "rewardId": rewardId
+                    }
+                }
+            }, function(ret, err) {
+                console.log('ret=========' + ret)
+                if (ret) {
+                    var timer = setTimeout(function() {
+                        loadHtml(ret);
+                        initButton();
+                        api.hideProgress();
+                        clearTimeout(timer)
+                    }, 1000)
+                } else {
+                    $('.rewardList').html('');
+                    api.hideProgress();
+                }
+            });
+
+        }
+
+        function loadHtml(ret) {
+            var pageParam = api.pageParam.pageParam;
+            var earnCount = pageParam.earnCount;
+            var residueCount = pageParam.residueCount;
+            var imageUrl = globalData.imageUrl;
+            var openType = pageParam.openType;
+            var dtml = '';
+            var stml = '';
+            var atml = '';
+            $api.setStorage('rewardPersonId', ret.rewardPersonId);
+            $api.setStorage('rewardPersonName', ret.userName);
+            $api.setStorage('rewardPersonTx', ret.headportrait);
+            dtml += '<h3 class="info-title">' + ret.rewardName + '<span class="orange-color float-r">' + ret.bounty + '元</span></h3>';
+            dtml += '<div class="info-con-items rewardPerson"><span>悬赏主:</span><div class="float-l coloradadad">' + ret.userName + '</div></div>';
+            dtml += '<div class="info-con-items border-b" style="padding-bottom: 10px;box-sizing: content-box"><p class="typeInfoP"><span class="orange-color">' + earnCount + '</span>人已赚</p>';
+            dtml += '<p class="typeInfoP">剩<span class="red-color">' + residueCount + '</span>个</p><p class="typeInfoP">3小时内审核</p></div>';
+            dtml += '<div class="info-con-items info-con-items3"><span>报名条件/限制:</span><div class="coloradadad" id="">' + ret.applyLimit + '</div></div>';
+            $('#detail').html(dtml);
+            var stepList = ret.stepList;
+            var stepIds = '';
+            var content = '';
+            for (var i = 0; i < stepList.length; i++) {
+                var n = i + 1;
+                content = stepList[i].content;
+                if (stepList[i].stepType == '1') {
+                    stml += '<div class="step-box"><div class="step-box-tit"><span class="circle">' + n + '</span>' + stepList[i].stepsName + '</div>';
+                    if (openType == '1') {
+                        stml += '<div class="img-box"><input type="text" data-ty=' + stepList[i].stepType + ' id="' + stepList[i].stpeId + '" placeholder="请在此输入">';
+                    } else {
+                        stml += '<div class="img-box"><input type="text" data-ty=' + stepList[i].stepType + ' id="' + stepList[i].stpeId + '" placeholder="请在此输入" value = "' + content + '">';
+                    }
+                    stml += '</div></div>';
+                    stepIds += stepList[i].stpeId + ',';
+                } else {
+                    if (stepList[i].imgType == '0') {
+                        stml += '<div class="step-box"><div class="step-box-tit"><span class="circle">' + n + '</span>' + stepList[i].stepsName + '</div>';
+                        stml += '<div><div class="shadow">';
+                        stml += '<img  tapmode src="' + imageUrl + stepList[i].attachPath + '" alt="" class="saveImg" data-url="' + imageUrl + stepList[i].attachPath + '"></div><p class="textalign-c">(报名后长按图片下载到相册)</p></div></div>';
+                    } else if (stepList[i].imgType == '1') {
+                        stml += '<div class="step-box"><div class="step-box-tit"><span class="circle">' + n + '</span>' + stepList[i].stepsName + '</div>';
+                        stml += '<div><div>';
+                        stml += '<img  tapmode src="' + imageUrl + stepList[i].attachPath + '" alt="" class="saveImg" data-url="' + imageUrl + stepList[i].attachPath + '"></div></div></div>';
+                    } else {
+                        stml += '<div class="step-box"><div class="step-box-tit"><span class="circle">' + n + '</span>' + stepList[i].stepsName + '</div>';
+                        stml += '<div class="img-box2"><div class="img-upload bigimg-upload">';
+                        stml += "<img  class='bigimg' src='" + imageUrl + stepList[i].attachPath + "' alt='' id=''>";
+                        if (openType == '1') {
+                            stml += "<img src='../image/icon_upload.png' class='icon_upload' alt='' data-ty='" + stepList[i].stepType + "' id='" + stepList[i].stpeId + "' onclick=showAction('" + stepList[i].stpeId + "')></div></div></div>";
+                        }
+                        /*else {
+                            stml += "<img src='" + globalData.imageUrl + content + "' class='bigimg' alt='' data-ty='" + stepList[i].stepType + "' id='" + stepList[i].stpeId + "' onclick=showAction('" + stepList[i].stpeId + "')></div></div></div>";
+                        }*/
+                        stepIds += stepList[i].stpeId + ',';
+                    }
+                }
+            }
+            $api.setStorage("stepIds", stepIds);
+            $('.info-con-upload-items').html(stml);
+            atml += '<h3 class="info-title border-b">' + ret.userReservedInfo + '</h3><div class="info-con-items">';
+            atml += '<input type="text" placeholder="请在此输入" class="float-l coloradadad normal-input" id="connectInfo">';
+            atml += '</div>';
+            $('#preInfo').html(atml);
+            $('.saveImg').on('longTap', function() {
+                var url = $(this).data('url');
+                api.saveMediaToAlbum({
+                    // path: 'fs://' + url + '.png'
+                    path: url
+
+                }, function(ret, err) {
+                    console.log(JSON.stringify(ret))
+
+                    if (ret.status) {
+                        api.toast({
+                            msg: '保存成功',
+                            duration: 2000,
+                            location: 'bottom'
+                        });
+                    } else {
+                        api.toast({
+                            msg: '保存失败，请重试',
+                            duration: 2000,
+                            location: 'bottom'
+                        });
+                    }
+                });
+                // alert(url)
+                // api.download({
+                //     url: url,
+                //     savePath: 'fs://' + url,
+                //     report: true,
+                //     cache: true,
+                //     allowResume: true
+                // }, function(ret, err) {
+                //     console.log(JSON.stringify(ret))
+                //     if (ret.state == 1) {
+                //         api.saveMediaToAlbum({
+                //             // path: 'fs://' + url + '.png'
+                //             path: url
+
+                //         }, function(ret, err) {
+                //             console.log(JSON.stringify(ret))
+
+                //             if (ret.status) {
+                //                 api.toast({
+                //                     msg: '保存成功',
+                //                     duration: 2000,
+                //                     location: 'bottom'
+                //                 });
+                //             } else {
+                //                 api.toast({
+                //                     msg: '保存失败，请重试',
+                //                     duration: 2000,
+                //                     location: 'bottom'
+                //                 });
+                //             }
+                //         });
+                //     }
+                // });
+            });
+
+            $(".rewardPerson").on('click', function() {
+                console.log('进入聊天：' + JSON.stringify(this));
+                var userInfo = {
+                        uid: $api.getStorage('rewardPersonId'),
+                        imgPath: globalData.imageUrl + $api.getStorage('rewardPersonTx'),
+                        title: $api.getStorage('rewardPersonName'),
+                        subTitle: '',
+                        remark: '',
+                    }
+                    // 打开登录Frame
+                api.openFrame({
+                    name: 'chat_frm',
+                    url: './chat/chat_frm.html',
+                    rect: {
+                        w: 'auto',
+                        h: api.winHeight - 120,
+                        marginTop: 70
+                    },
+                    pageParam: {
+                        userInfo: userInfo
+                    },
+                    slidBackEnabled: false,
+                    bounces: true,
+                });
+            })
+        }
+
+
+
+        function initButton() {
+            var pageParam = api.pageParam.pageParam;
+            var rewardId = pageParam.rewardId;
+            api.ajax({
+                url: globalData.baseUrl + globalData.isApply,
+                method: 'get',
+                data: {
+                    values: {
+                        rewardId: rewardId,
+                        userId: $api.getStorage("userId"),
+                    }
+                }
+            }, function(ret, err) {
+                if (ret.status == '1') {
+                    var divEle = document.getElementById('confirm-publish-btn');
+                    divEle.innerHTML = '立即报名';
+                } else if (ret.status == '2') {
+                    var divEle = document.getElementById('confirm-publish-btn');
+                    divEle.innerHTML = '提交';
+                    $(".shadow").removeClass('shadow'); //去掉遮罩
+                } else if (ret.status == '3') {
+                    $("#isApply").remove();
+                    $(".shadow").removeClass('shadow'); //去掉遮罩
+                } else if (ret.status == '4') {
+                    var divEle = document.getElementById('confirm-publish-btn');
+                    divEle.innerHTML = '重新提交';
+                    var rParam = api.pageParam.pageParam;
+                    var rId = rParam.rewardId;
+                    $api.setStorage(rId + 'rel', ret.relId);
+                    $(".shadow").removeClass('shadow'); //去掉遮罩
+                } else if (ret.status == '5') {
+                    var divEle = document.getElementById('confirm-publish-btn');
+                    divEle.innerHTML = '立即报名';
+                }
+                $(".info-wrap").show();
+            });
+        }
+
+        // 上传图片
+        function showAction(params) {
+            api.actionSheet({
+                title: '上传图片',
+                cancelTitle: '取消',
+                buttons: ['拍照', '从手机相册选择']
+            }, function(ret, err) {
+                if (ret) {
+                    getPicture(ret.buttonIndex, params);
+                }
+            });
+        }
+
+        function getPicture(sourceType, typeId) {
+            if (sourceType == 1) { // 拍照
+                api.getPicture({
+                    sourceType: 'camera',
+                    encodingType: 'jpg',
+                    mediaValue: 'pic',
+                    allowEdit: false,
+                    destinationType: 'base64',
+                    quality: 90,
+                    saveToPhotoAlbum: true
+                }, function(ret, err) {
+                    if (ret) {
+                        $('#' + typeId).attr('src', ret.data);
+                        document.getElementById(typeId).setAttribute("class", "bigimg");
+                    } else {
+                        //alert(JSON.stringify(err));
+                    }
+                });
+            } else if (sourceType == 2) { // 从相机中选择
+                api.getPicture({
+                    sourceType: 'library',
+                    encodingType: 'jpg',
+                    mediaValue: 'pic',
+                    destinationType: 'base64',
+                    quality: 50,
+                    targetWidth: 750,
+                    targetHeight: 750
+                }, function(ret, err) {
+                    if (ret) {
+                        $('#' + typeId).attr('src', ret.data);
+                        document.getElementById(typeId).setAttribute("class", "bigimg");
+                    } else {
+                        //  alert(JSON.stringify(err));
+                    }
+                });
+            }
+        }
+    </script>
+
+</body>
+
+</html>

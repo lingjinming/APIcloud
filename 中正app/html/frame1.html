@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <link rel="stylesheet" type="text/css" href="../css/style.css" />
+    <title>消息</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        ul {
+            padding-top: 10px
+        }
+
+        ul li {
+            position: relative;
+            list-style: none;
+            border-bottom: 1px solid #cadae6;
+            width: 94%;
+            margin: 0 auto;
+            height: 60px;
+            box-sizing: content-box;
+            display: flex;
+            display: -webkit-box;
+            display: -webkit-flex;
+            padding-top: 10px
+        }
+
+        .titleImg {
+            width: 50px;
+            height: 50px;
+            border-radius: 5px;
+            float: left;
+            margin-left: 10px
+        }
+
+        ul li p {
+            width: calc(100% - 75px);
+            margin-left: 75px;
+            white-space: nowrap;
+            overflow-x: auto;
+            overflow-y: hidden;
+        }
+
+        .itemTitle {
+            font-size: 16px;
+            color: #333;
+            margin-bottom: 3px;
+            padding-top: 3px
+        }
+
+        .itemTitle span,
+        .itemSubTitle {
+            font-size: 14px;
+            color: #999;
+        }
+
+        .itemTitle span {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+        }
+
+        .itemSubTitle {
+            width: 200px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            padding-left: 1px;
+        }
+
+        .chatNums {
+            position: absolute;
+            left: 50px;
+            top: -5px;
+            width: 15px;
+            height: 15px;
+            line-height: 15px;
+            border-radius: 50%;
+            background: red;
+            color: #fff;
+            text-align: center;
+            white-space: nowrap;
+            overflow: hidden;
+            font-size: 14px
+        }
+
+        ul li>span {
+            display: inline-block;
+            width: 100%;
+            height: 100%;
+            position: relative;
+        }
+
+        ul li>span:last-child {
+            width: 20%;
+            background: red;
+            color: #fff;
+            height: 60px;
+            line-height: 60px;
+            text-align: center;
+        }
+
+        ul li>span:last-child:hover {
+            opacity: .8;
+        }
+
+        .none {
+            display: none
+        }
+    </style>
+</head>
+
+<body>
+    <ul class="contactListUl">
+        <li v-for='(item,index) in contactList' @click='enterNoticeList(item)' class="contactListLi">
+            <span>
+                    <img class="titleImg" :src='item.imgPath' alt="">
+                    <span class="chatNums" v-if='item.chatNums>0'>{{item.chatNums}}</span>
+            <p class="itemTitle">
+                {{item.title}}
+                <span>{{item.remark}}</span>
+            </p>
+            <p class="itemSubTitle">
+                {{item.subTitle}}
+            </p>
+            </span>
+            <span class="none" id="delBtn">删除</span>
+        </li>
+    </ul>
+</body>
+<script type="text/javascript" src="../script/globalApp.js"></script>
+<script type="text/javascript" src="../script/api.js"></script>
+<script type="text/javascript" src="../script/libs/vue.js"></script>
+<script type="text/javascript" src="../script/libs/zepto.js"></script>
+<script type="text/javascript" src="../script/libs/touch.js"></script>
+
+<script type="text/javascript">
+    apiready = function() {
+        api.setRefreshHeaderInfo({
+            visible: true,
+            bgColor: '#ccc',
+            textColor: '#666',
+            textDown: '下拉刷新...',
+            textUp: '松开刷新...',
+            showTime: true
+        }, function(ret, err) {
+            api.refreshHeaderLoadDone();
+        });
+        api.addEventListener({
+            name: 'listenInfo'
+        }, function(ret, err) {
+
+        });
+        api.addEventListener({
+            name: 'getChatList'
+        }, function(ret, err) {
+
+        });
+        api.addEventListener({
+            name: 'clearReadedMsg'
+        }, function(ret, err) {
+
+        });
+
+        api.addEventListener({
+            name: 'swiperight'
+        }, function(ret, err) {
+
+        });
+    }
+
+    new Vue({
+        el: '.contactListUl',
+        data: {
+            contactList: [{
+                title: '系统通知',
+                remark: '',
+                imgPath: '../image/logo_192.png',
+                chatNums: 0,
+                subTitle: '点击查看最新赏单信息'
+            }]
+        },
+        methods: {
+            enterNoticeList(item) {
+                api.openWin({
+                    name: 'notice_list_win',
+                    url: "./chat/notice_list_win.html"
+                });
+            }
+        },
+    })
+
+
+    function showContactList(params) {
+        // vm.$data.contactList = params
+        console.log('联系人数量' + params.length);
+        $('.contactListUl').empty();
+        var html = '';
+        for (var i = 0; i < params.length; i++) {
+            html += `
+            <li data-params='${JSON.stringify(params[i])}' class="contactListLi">
+                <span class='enterChat'>
+                    <img class="titleImg" src="${params[i]['imgPath']}" alt="">
+                    <span class="chatNums" data-chatNums="${params[i]['chatNums']}">${params[i]['chatNums']}</span>
+                <p class="itemTitle">
+                        ${params[i]['title']}
+                    <span>${params[i]['remark']}</span>
+                </p>
+                <p class="itemSubTitle">
+                        ${params[i]['subTitle']}
+                </p>
+                </span>
+                <span class="none" id = '${params[i].uid}'>删除</span>
+            </li>
+            `
+        }
+        $('.contactListUl').append(html);
+
+        $('.chatNums').forEach(function(item, index) {
+            if ($(item).html() == '0') {
+                $(item).remove()
+            }
+        });
+
+        $(".contactListLi").swipeLeft(function() {
+            $(this).find('.none').show()
+            if ($(this).find('.none')) {
+                $('.none').on('click', function(e) {
+                    e.stopPropagation()
+
+                    var uid = $(this).attr("id");
+                    var rong = api.require('rongCloud2');
+                    rong.clearMessages({
+                        conversationType: 'PRIVATE',
+                        targetId: uid
+                    }, function(ret, err) {
+
+                    })
+                    $(this).parent().remove();
+                })
+            }
+
+        });
+        $(".contactListLi").swipeRight(function() {
+            console.log('右滑')
+
+            $(this).find('.delBtn').hide()
+        });
+
+        $('.enterChat').on('click', function() {
+            openChat_frm($(this).parent().data('params'))
+        })
+    }
+
+    function openChat_frm(userInfo) {
+        var id = userInfo.uid;
+        clearReadedMsg(id); //清除已读消息
+        // 打开登录Frame
+        api.openFrame({
+            name: 'chat_frm',
+            url: './chat/chat_frm.html',
+            rect: {
+                w: 'auto',
+                h: api.winHeight - 120,
+                marginTop: 70
+            },
+            pageParam: {
+                userInfo: userInfo
+            },
+            slidBackEnabled: false,
+            bounces: true,
+        });
+
+    }
+
+    function clearReadedMsg(id) {
+        if (id == $api.getStorage('userId')) {} else {
+            var rong = api.require('rongCloud2');
+            rong.clearMessagesUnreadStatus({
+                conversationType: 'PRIVATE',
+                targetId: id
+            }, function(ret, err) {})
+        }
+    }
+
+
+    function getChatList() {
+        var rong = api.require('rongCloud2');
+        rong.getConversationList(function(ret, err) {
+            var data1 = [];
+            if (ret.status == 'success') {
+                //alert('111'+JSON.stringify(ret))
+                var mesCount = 0;
+                for (var i in ret.result) {
+                    var obj = {};
+                    var rs = ret.result[i];
+                    var extra = transJson(rs.latestMessage.extra);
+
+                    obj.uid = rs.targetId;
+                    //obj.imgPath = extra.tx2;
+                    obj.subTitle = rs.latestMessage.text;
+                    obj.remark = sj(rs.receivedTime);
+                    obj.icon = '';
+                    if (extra != undefined) {
+                        if (extra.name1 == $api.getStorage('userName')) {
+                            obj.title = extra.name2;
+                            obj.imgPath = extra.tx2;
+                        } else {
+                            obj.title = extra.name1;
+                            obj.imgPath = globalData.imageUrl + extra.tx1;
+                        }
+                    } else {
+                        continue;
+                    }
+
+                    if (rs.unreadMessageCount > 0 && extra.name2 == $api.getStorage('userName')) {
+                        //未读消息数量
+                        obj.chatNums = rs.unreadMessageCount;
+
+                        mesCount += rs.unreadMessageCount;
+                    } else {
+                        obj.chatNums = 0
+                    }
+                    data1.push(obj);
+                    //
+                    //                              if (rs.objectName == 'RC:TxtMsg') { //文本
+                    //
+                    //                              } else if (rs.objectName == 'RC:ImgMsg') { //图片
+                    //
+                    //                              } else if (rs.objectName == 'RC:VcMsg') { //语音
+                    //
+                    //                              }
+                }
+                if (mesCount != 0) {
+                    api.sendEvent({
+                        name: 'addMessageLi'
+                    });
+                } else {
+                    api.sendEvent({
+                        name: 'removeMessageLi'
+                    });
+                }
+                showContactList(data1);
+            } else {
+                setTimeout(function() {
+                    getChatList();
+                }, 500);
+                api.refreshHeaderLoadDone();
+            }
+        });
+    }
+
+    function initRong() {
+        var rong = api.require('rongCloud2');
+        rong.init(function(ret, err) {
+            if (ret.status == 'success') {
+                rong.connect({ //消息监听
+                    token: $api.getStorage('rongtoken')
+                }, function(ret, err) {
+                    listenInfo();
+                });
+
+            } else {
+                api.toast({
+                    msg: '服务器连接失败'
+                });
+            }
+        });
+    }
+
+    function listenInfo() {
+
+
+
+        var rong = api.require('rongCloud2');
+        rong.setOnReceiveMessageListener(function(ret, err) {
+            if (ret) {
+                //         var extraObj =  transJson(ret.result.message.content.extra);
+                //         var content = extraObj.name1 + '：'+ ret.result.message.content.text;
+                api.notification({
+                    //                 notify:{
+                    //                 content:content
+                    //                 },
+                    sound: 'default',
+                    vibrate: [500],
+                    light: true
+
+                }, function(ret, err) {
+                    console.log('手机震动了');
+                });
+                getChatList();
+            }
+        })
+    };
+
+    function transJson(arg) {
+        var result = '';
+        try {
+            result = eval('(' + arg + ')');
+        } catch (e) {
+            result = arg.slice(1, -1);
+        } finally {}
+        return result;
+    }
+
+
+
+    function sj(sj) {
+        var nowt = new Date().getTime();
+        var a = new Date(parseInt(sj));
+        var b = new Date(parseInt(nowt));
+        var date1 = Date.parse(format(a, 4));
+        var date2 = Date.parse(format(b, 4));
+        var xxsj = Math.ceil((date2 - date1) / (60 * 1000));
+        if (xxsj <= 1 && xxsj >= 0) {
+            return "刚刚";
+        } else if (xxsj <= 10 && xxsj > 1) {
+            return xxsj + "分钟前";
+        } else if (xxsj <= 60 && xxsj > 10) {
+            return format(a, 1);
+        } else if (xxsj <= 1440 && xxsj > 60) {
+            return format(a, 1);
+        } else if (xxsj <= 10080 && xxsj > 1440) {
+            return format(a, 2);
+        } else if (xxsj > 10080) {
+            return format(a, 3);
+        } else {
+            return format(a, 3);
+        }
+    }
+
+    //格式化时间
+    function format(now, type) {
+        var show_day = new Array('星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六');
+        var year = now.getFullYear().toString();
+        var month = (now.getMonth() + 1).toString();
+        var day = (now.getDate()).toString();
+        var tian = now.getDay().toString();
+        var hour = (now.getHours()).toString();
+        var minute = (now.getMinutes()).toString();
+        var second = (now.getSeconds()).toString();
+        if (hour.length == 1) {
+            hour = "0" + hour;
+        }
+        if (minute.length == 1) {
+            minute = "0" + minute;
+        }
+        if (second.length == 1) {
+            second = "0" + second;
+        }
+        var dateTime = '';
+        if (type == 1) {
+            dateTime = hour + ":" + minute;
+        } else if (type == 2) {
+            dateTime = show_day[tian] + " " + hour + ":" + minute;
+        } else if (type == 3) {
+            dateTime = year + "-" + month + "-" + day;
+        } else if (type == 4) {
+            dateTime = year + "/" + month + "/" + day + " " + hour + ":" + minute + ":" + second;
+        } else if (type == 5) {
+            dateTime = show_day[tian];
+        }
+        return dateTime;
+    }
+</script>
+
+</html>
+
+</html>
+</script>
+
+</html>

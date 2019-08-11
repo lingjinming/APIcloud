@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>找回密码</title>
+    <link rel="stylesheet" type="text/css" href="../css/style.css" />
+    <style>
+        .row {
+            width: auto;
+            margin-left: 32px;
+            margin-right: 32px;
+            position: relative;
+            height: 40px;
+            line-height: 40px;
+            border-radius: 20px;
+            background: rgba(0, 0, 0, 0.5);
+            margin-bottom: 20px;
+        }
+        
+        .input {
+            width: 45%;
+            height: 30px;
+            line-height: 30px;
+            margin-top: 5px;
+            font-size: 14px;
+            background: transparent;
+            color: #fff;
+            float: left;
+        }
+        
+        .iconfont {
+            font-size: 20px;
+            color: #fff;
+            margin-left: 15px;
+            margin-right: 5px;
+            float: left;
+        }
+        
+        .border-radius {
+            width: calc(65% - 64px);
+            margin-left: 32px;
+            margin-right: 5%;
+            position: relative;
+            height: 40px;
+            line-height: 40px;
+            border-radius: 20px;
+            background: rgba(0, 0, 0, 0.5);
+            margin-bottom: 20px;
+        }
+        
+        .highlight {
+            opacity: 0.7;
+        }
+        
+        .btn {
+            position: relative;
+            height: 40px;
+            line-height: 40px;
+            border-radius: 20px;
+            background: #0090ff;
+            color: #fff;
+            font-size: 14px;
+            text-align: center;
+        }
+        
+        .fnGetCode_btn {
+            width: 30%;
+            margin: 0;
+        }
+        
+        .fnRegister_btn {
+            width: auto;
+            font-size: 16px;
+            margin: 0 32px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="row">
+        <i class="iconfont icon-shoujihao"></i><input id="tel" class="input" type="text" placeholder="输入手机号获取验证码">
+    </div>
+    <div class="h40 marb20">
+        <div class="border-radius float-l">
+            <i class="iconfont icon-mima"></i><input id="code" class="input" type="text" placeholder="验证码">
+        </div>
+        <div class="float-l btn fnGetCode_btn" onclick="fnGetCode()">获取验证码</div>
+    </div>
+    <div class="row">
+        <i class="iconfont icon-mima"></i><input id="password" class="input" type="password" placeholder="请输入新的密码">
+    </div>
+    <div class="row">
+        <i class="iconfont icon-mima"></i><input id="password2" class="input" type="password" placeholder="确认密码">
+    </div>
+
+
+    <div class="btn fnRegister_btn" tapmode="highlight" onclick="fnChangePass();">确认修改</div>
+
+</body>
+<script type="text/javascript" src="../script/api.js"></script>
+<script type="text/javascript" src="../script/globalApp.js"></script>
+<script type="text/javascript">
+    apiready = function() {};
+    var getCodeUrl = globalData.baseUrl + globalData.getCode; //获取验证码
+    var registUrl = globalData.baseUrl + globalData.toRegist; //注册
+
+    var usernameValue;
+    var tel;
+    var passwordValue;
+    var cid;
+    var code;
+
+    //获取验证码
+    function fnGetCode() {
+        api.ajax({
+            url: getCodeUrl,
+            method: "post",
+            data: {
+                values: {
+                    tel:$api.byId("tel").value,
+                    type:"2",
+                }
+            }
+        }, function(ret, err) {
+            alert(ret.status)
+            console.log(ret)
+
+        });
+    };
+    // 注册
+    function fnChangePass() {
+        api.ajax({
+            url: registUrl,
+            method: 'post',
+            headers: {
+                "X-APICloud-AppId": api.appId,
+                "X-APICloud-AppKey": 'D82E0BFD-6F5F-0313-CE4E-A2B09F9E9957'
+            },
+            data: {
+                values: {
+                    "userName": $api.byId("username").value,
+                    "tel": $api.byId("tel").value,
+                    "pwd": $api.byId("password").value,
+                    "cid": $api.byId("code").value,
+                    "code": api.deviceId,
+                }
+            }
+        }, function(ret, err) {
+            if (ret) {
+                if (ret.status == 1) {
+                    api.alert({
+                        title: '提示',
+                        msg: '注册成功',
+                    }, function(ret, err) {
+                        console.log(ret)
+                        if (ret) {
+                            // 跨窗口执行Script, 将用户名传给登录页面
+                            api.execScript({
+                                name: 'loginFrm',
+                                frameName: 'loginFrm',
+                                script: 'fnSetUsername(\"' + usernameValue + '\");'
+                            });
+                            api.closeWin();
+                        }
+                    });
+                } else if (ret.status == 2) {
+                    api.alert({
+                        title: '提示',
+                        msg: '验证码错误！',
+                    }, function(ret, err) {
+
+                    });
+                } else if (ret.status == 0) {
+                    api.alert({
+                        title: '提示',
+                        msg: '验证码已过期！',
+                    }, function(ret, err) {
+
+                    });
+                } else if (ret.status == 3) {
+                    api.alert({
+                        title: '提示',
+                        msg: '该手机号已被注册！',
+                    }, function(ret, err) {
+
+                    });
+
+                }
+
+            } else {
+                api.toast({
+                    msg: '注册失败',
+                    duration: 2000,
+                    location: 'middle'
+                });
+            }
+        });
+    }
+</script>
+
+</html>

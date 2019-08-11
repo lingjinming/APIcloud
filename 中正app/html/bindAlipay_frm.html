@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>钱包提现</title>
+    <link rel="stylesheet" type="text/css" href="../css/style.css" />
+    <link rel="stylesheet" type="text/css" href="../css/publish.css" />
+
+    <style>
+        body {
+            background: #f4f4f4;
+        }
+
+        #app {
+            height: 100vh;
+        }
+
+        .con-wrap {
+            background: #fff;
+            margin: 10px 20px;
+        }
+
+        .info {
+            margin: 10px 20px;
+        }
+
+        .info p {
+            line-height: 30px;
+            font-size: 15px;
+        }
+
+        .con-wrap {
+            padding: 0 10px;
+        }
+
+        .info-con-items2 {
+            position: relative;
+        }
+
+        .code {
+            position: absolute;
+            right: 0;
+            height: 35px;
+            line-height: 35px;
+            top: 6px;
+            text-align: center;
+            border: 1px solid #ddd;
+        }
+
+        .getcode {
+            color: #fff !important;
+            background: #1cbb9e;
+            border: none;
+            text-align: center;
+            width: 100px;
+        }
+
+        .getcode1 {
+            background: #fff;
+            padding-top: 5px;
+            border: none;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="wrapper" id="app">
+        <div class="con-wrap">
+            <div class="info-con-items2 border-b">
+                <span style="width: 80px">支付宝账号:</span>
+                <input id="alipayAcc" name="" placeholder="手机号/邮箱">
+            </div>
+            <div class="info-con-items2 border-b">
+                <span style="width: 80px">支付宝姓名:</span>
+                <input name="" id="alipayName" placeholder="支付宝姓名">
+            </div>
+            <div class="info-con-items2 border-b">
+                <span style="width: 80px">校验码:</span>
+                <input name="" id="checkCode" placeholder="请输入右侧校验码">
+                <span class="code getcode1" id="">
+                    <img style="height:22px;" id="codeImg" alt="点击更换" title="点击更换" src="" />
+                </span>
+            </div>
+            <div class="info-con-items2">
+                <span style="width: 80px">验证码:</span>
+                <input name="" id="checkCode2" placeholder="请输入验证码">
+                <input class="code getcode" id="code" onclick="settime(this)" type="button" value="获取验证码"></span>
+            </div>
+        </div>
+        <div class="info">
+            <p>*温馨提示*</p>
+            <p>1.请仔细核对提现信息，若因填写信息错误导致未能成功提现，本平台概不负责。</p>
+            <p>2.一天只可提现一次。</p>
+        </div>
+        <div class="btn confirm-publish-btn" id="confirm-submit-btn">绑定</div>
+    </div>
+</body>
+<script type="text/javascript" src="../script/api.js"></script>
+<script type="text/javascript" src="../script/libs/vue.js"></script>
+<script type="text/javascript" src="../script/libs/zepto.js"></script>
+<script type="text/javascript" src="../script/globalApp.js"></script>
+
+<script type="text/javascript">
+    var getCodeUrl = globalData.baseUrl + globalData.getCode; //获取验证码
+    var boundToPayUrl = globalData.baseUrl + globalData.boundToPay; //绑定支付宝
+
+    apiready = function() {
+        changeCode();
+    }
+
+    $("#codeImg").bind("click", changeCode);
+
+    function changeCode() {
+        $("#codeImg").attr("src", globalData.baseUrl + globalData.getSecCode + "?t=" + Math.round(Math.random() * 1000));
+    }
+
+    //获取验证码
+    function fnGetCode() {
+      var tel = $api.getStorage('tel');
+        api.ajax({
+            url: getCodeUrl,
+            method: "post",
+            data: {
+                values: {
+                    tel:tel,
+                    type: '3',
+                }
+            }
+        }, function(ret, err) {
+            console.log(ret.status)
+        });
+    };
+    var countdown = 60;
+    //倒计时
+    function settime(val) {
+        var val = $api.byId("code");
+        var telval = $("#alipayAcc").val(); //手机号
+
+        if (telval) {
+            if (countdown == 60) {
+                fnGetCode();
+            }
+            if (countdown == 0) {
+                val.removeAttribute("disabled");
+                val.value = "获取验证码";
+                countdown = 60;
+            } else {
+                val.setAttribute("disabled", true);
+                val.value = "重新发送(" + countdown + ")";
+                countdown--;
+                setTimeout(function() {
+                    settime(val)
+                }, 1000);
+            }
+        } else {
+            api.toast({
+                msg: '请输入手机号',
+                duration: 2000,
+                location: 'bottom'
+            });
+        }
+
+    }
+    //提交绑定
+    $("#confirm-submit-btn").on('click', function() {
+        var alipayAccVal = $api.byId("alipayAcc").value; //支付宝账户
+        var alipayNameVal = $api.byId("alipayName").value; //支付宝账户名
+        var checkCodeVal = $api.byId("checkCode").value; //校验码
+        var checkCode2Val = $api.byId("checkCode2").value; //验证码
+        if (!alipayAccVal) {
+            api.toast({
+                msg: '请输入支付宝账号',
+                location: 'bottom'
+            });
+        } else if (!alipayNameVal) {
+            api.toast({
+                msg: '请输入支付宝账户名',
+                location: 'bottom'
+            });
+        } else if (!checkCodeVal) {
+            api.toast({
+                msg: '请输入正确校验码',
+                location: 'bottom'
+            });
+        } else if (!checkCode2Val) {
+            api.toast({
+                msg: '请输入正确验证码',
+                location: 'bottom'
+            });
+        } else {
+            fnBoundToPay()
+        }
+    })
+
+    function fnBoundToPay() {
+        var userId = $api.getStorage('userId');
+        var tel = $api.getStorage('tel');
+        var alipayAccVal = $api.byId("alipayAcc").value; //支付宝账户
+        var alipayNameVal = $api.byId("alipayName").value; //支付宝账户名
+        var checkCodeVal = $api.byId("checkCode").value; //校验码
+        var checkCode2Val = $api.byId("checkCode2").value; //验证码
+        api.ajax({
+            url: boundToPayUrl,
+            method: "post",
+            data: {
+                values: {
+                    tel: tel,
+                    userId: userId,
+                    account: alipayAccVal,
+                    username: alipayNameVal,
+                    checkCode: checkCodeVal.toUpperCase(),
+                    verifyCode: checkCode2Val
+                }
+            }
+        }, function(ret, err) {
+            if (ret.status == "1") {
+                api.alert({
+                    msg: '校验码错误'
+                })
+            } else if (ret.status == "2") {
+                api.alert({
+                    msg: '验证码错误'
+                })
+            } else {
+              api.toast({
+               msg: '绑定成功！',
+               duration: 2000,
+                location: 'bottom'
+             });
+               var bindAccount = ret.bindAccount();
+                openBalanceWin(bindAccount);
+            }
+        });
+    }
+
+    function openBalanceWin(bindAccount) { //进入提现界面
+        var timer = setTimeout(function() {
+            api.openWin({
+                name: 'balance_win',
+                url: './balance_win.html',
+                pageParam: {
+                    pageParam: bindAccount
+                }
+            });
+            clearTimeout(timer)
+        }, 2000);
+    }
+</script>
+
+</html>

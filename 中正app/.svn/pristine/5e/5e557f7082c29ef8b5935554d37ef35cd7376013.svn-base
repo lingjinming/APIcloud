@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>简单悬赏页面</title>
+    <link rel="stylesheet" type="text/css" href="../../css/style.css" />
+    <link rel="stylesheet" type="text/css" href="../../css/publish.css" />
+    <style>
+
+    </style>
+</head>
+
+<body>
+    <div class="info-wrap">
+        <div class="info-con">
+            <h3 class="info-title border-b">基本信息</h3>
+            <div class="info-con-items border-b">
+                <span>悬赏名称</span>
+                <div class="float-r">
+                    <input type="text" placeholder="4~8个字" id="rewardname">
+                </div>
+            </div>
+            <div class="info-con-items">
+                <span>关注平台</span>
+                <div class="float-r" id="js-platform">
+                    选择平台<i class="iconfont icon-youjiantou"></i>
+                </div>
+            </div>
+        </div>
+        <div class="info-con">
+            <h3 class="info-title border-b">设置步骤</h3>
+            <div class="info-con-upload-items">
+                <div class="step-box">
+                    <div class="step-box-tit"><span class="circle">1</span>上传二维码</div>
+                    <div class="img-box flex-wrap">
+                        <div class="img-upload" onclick="showAction('imgCodeUp');">
+                            <span class="deleteimg"><i class="iconfont icon-guanbi"></i></span>
+                            <img src="../../image/icon_upload.png" alt="" id="imgCodeUp">
+                        </div>
+                    </div>
+                </div>
+                <div class="step-box">
+                    <div class="step-box-tit"><span class="circle">2</span><input type="text" value="上传关注成功示例" id="seccessImg"></div>
+                    <div class="img-box flex-wrap">
+                        <div class="img-upload" onclick="showAction('imgSuccessUp');">
+                            <span class="deleteimg"><i class="iconfont icon-guanbi"></i></span>
+                            <img src="../../image/icon_upload.png" alt="" id="imgSuccessUp">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="info-con marb50">
+            <h3 class="info-title border-b">赏金设置</h3>
+            <div class="info-con-items border-b">
+                <span>悬赏单价</span>
+                <div class="float-r">
+                    <input type="text" id="bounty" onkeyup="value=value.replace(/[^\d{1,}\.\d{1,}|\d{1,}]/g,'')" onchange="getPrepaid();">元/人
+                </div>
+            </div>
+            <div class="info-con-items border-b">
+                <span>总名额</span>
+                <div class="float-r">
+                    <input type="text" id="countPlaces" placeholder="(最少10人)" onkeyup="value=value.replace(/[^\d]/g,'')" onchange="getPrepaid();">人
+                </div>
+            </div>
+            <div class="info-con-items border-b">
+                <span>截止日期</span>
+                <div class="float-r">
+                    <input id="reward_end_time" name="reward_end_time" readonly type="text" placeholder="选择截止日期"><i class="iconfont icon-youjiantou"></i>
+                </div>
+            </div>
+            <div class="info-con-items">
+                <span>预付赏金</span>
+                <div class="float-r">
+                    <input type="text" id="pre-coast" readonly>元
+                </div>
+            </div>
+        </div>
+        <div class="btn confirm-publish-btn" id="confirm-publish-btn">发布</div>
+    </div>
+</body>
+<script type="text/javascript" src="../../script/api.js"></script>
+<script type="text/javascript" src="../../script/libs/zepto.js"></script>
+<script type="text/javascript" src="../../script/libs/datePicker.js"></script>
+<script type="text/javascript" src="../../script/globalApp.js"></script>
+
+<script type="text/javascript">
+    var fileList1 = [];
+    var fileList2 = [];
+    var platformId = "";
+    apiready = function() {
+
+        // var pageParam = api.pageParam;
+        // alert(pageParam.con)
+        // console.log(pageParam)
+    };
+
+    $(function() {
+        $("#confirm-publish-btn").on('click', function() {
+            var attributeId = api.pageParam.id;
+            if ($api.byId("rewardname").value == '') {
+                api.toast({
+                    msg: '请填写赏单名',
+                    location: 'bottom'
+                });
+                return false;
+            }
+            if (platformId == '') {
+                api.toast({
+                    msg: '请选择关注平台',
+                    location: 'bottom'
+                });
+                return false;
+            }
+            if (fileList1.length == 0) {
+                api.toast({
+                    msg: '请上传二维码',
+                    location: 'bottom'
+                });
+                return false;
+            }
+            if (fileList2.length == 0) {
+                api.toast({
+                    msg: '请上传关注成功示例',
+                    location: 'bottom'
+                });
+                return false;
+            }
+            if ($api.byId("bounty").value == '') {
+                api.toast({
+                    msg: '请输入悬赏单价',
+                    location: 'bottom'
+                });
+                return false;
+            }
+            if ($api.byId("countPlaces").value == '') {
+                api.toast({
+                    msg: '请输入总名额',
+                    location: 'bottom'
+                });
+                return false;
+            }
+            if ($api.byId("seccessImg").value == '') {
+                api.toast({
+                    msg: '请输入步骤名称',
+                    location: 'bottom'
+                });
+                return false;
+            }
+
+            if ($api.byId("reward_end_time").value == '') {
+                api.toast({
+                    msg: '请输入截止日期',
+                    location: 'bottom'
+                });
+                return false;
+            }
+            var params = {
+                rewardPersonId: $api.getStorage("userId"),
+                rewardName: $api.byId("rewardname").value,
+                resource: api.pageParam.id,
+                bounty: $api.byId("bounty").value,
+                countPlaces: $api.byId("countPlaces").value,
+                prepaid: $api.byId("pre-coast").value,
+                rewardAttribute: attributeId,
+                datetime: $api.byId("reward_end_time").value,
+                platformId: platformId,
+                stepContent: $api.byId("seccessImg").value,
+
+            };
+
+            api.ajax({
+                url: globalData.baseUrl + globalData.publishFocusOrder,
+                method: 'POST',
+                data: {
+                    values: params,
+                    files: {
+                        codeFiles: fileList1,
+                        successFiles: fileList2
+                    },
+                }
+            }, function(ret, err) {
+                if (ret && ret.status == 'success') {
+                    api.openWin({
+                        name: 'publish_result_win',
+                        url: './publish_result_win.html',
+                        bounces: false,
+                        pageParam: {
+                            key: 'value'
+                        },
+                        slidBackEnabled: false,
+                    });
+                } else {
+                    api.toast({
+                        msg: '提交失败！',
+                        location: 'bottom'
+                    });
+                }
+            });
+
+
+
+        });
+
+        $("#js-platform").on('click', function() {
+            var UIMultiSelector = api.require('UIMultiSelector');
+
+            UIMultiSelector.open({
+                rect: {
+                    h: 244
+                },
+                text: {
+                    // title: '选择类别',
+                    leftBtn: '取消',
+                    rightBtn: '确认',
+                    selectAll: '全选'
+                },
+                max: 0,
+                singleSelection: true, //参数值为 true 时，忽略参数 max，
+                styles: {
+                    mask: 'rgba(0,0,0,0)',
+                    title: {
+                        bg: '#f0f0f0'
+                    },
+                    leftButton: {
+                        w: 80,
+                        h: 35,
+                        marginT: 5,
+                        marginL: 8,
+                        color: '#666',
+                        bg: 'transparent',
+                        size: 14
+                    },
+                    rightButton: {
+                        w: 80,
+                        h: 35,
+                        marginT: 5,
+                        marginL: 8,
+                        color: '#1cbb9e',
+                        bg: 'transparent',
+                        size: 14
+                    },
+                    item: {
+                        h: 40,
+                        bg: '#fff',
+                        bgActive: '#fff',
+                        bgHighlight: '#fff',
+                        color: '#666',
+                        active: '#1cbb9e',
+                        highlight: '#1cbb9e',
+                        size: 14,
+                        lineColor: '#ddd',
+                        textAlign: 'center'
+                    }
+                },
+                icon: {
+                    w: 0,
+                    marginH: 0,
+                },
+                animation: true,
+                items: [{
+                    text: '微信公众号',
+                    status: 'normal',
+                    id: 1
+                }, {
+                    text: '支付宝',
+                    status: 'normal',
+                    id: 2
+                }, {
+                    text: '美团',
+                    status: 'normal',
+                    id: 3
+                }, {
+                    text: '其它',
+                    status: 'normal',
+                    id: 4
+                }]
+            }, function(ret, err) {
+                if (ret) {
+                    if (ret.eventType == "clickLeft") { //点击了取消
+                        UIMultiSelector.close();
+                    }
+                    if (ret.eventType == "clickRight") { //点击了确定
+                        platformId = ret.items[0].id;
+                        $("#js-platform").html(ret.items[0].text);
+                        UIMultiSelector.close();
+                    }
+                } else {
+                    alert(JSON.stringify(err));
+                }
+            });
+        })
+
+    })
+
+    function getPrepaid() {
+        var price = $api.byId("bounty").value;
+        var num = $api.byId("countPlaces").value;
+        if (price == '') {
+            price = 0;
+        }
+        if (num == '') {
+            num = 0;
+        }
+        var sum = price * num;
+        document.getElementById("pre-coast").value = sum;
+    }
+
+    // 上传图片
+    function showAction(params) {
+        api.actionSheet({
+            title: '上传图片',
+            cancelTitle: '取消',
+            buttons: ['拍照', '从手机相册选择']
+        }, function(ret, err) {
+            if (ret) {
+                getPicture(ret.buttonIndex, params);
+            }
+        });
+    }
+
+    function getPicture(sourceType, typeId) {
+        if (sourceType == 1) { // 拍照
+            api.getPicture({
+                sourceType: 'camera',
+                encodingType: 'jpg',
+                mediaValue: 'pic',
+                allowEdit: false,
+                destinationType: 'base64',
+                quality: 90,
+                saveToPhotoAlbum: true
+            }, function(ret, err) {
+                if (ret) {
+                    $('#' + typeId).attr('src', ret.base64Data);
+                    var tempData = ret.data;
+                    var res = tempData.split('/');
+                    if (tempData == "") return
+                    if (typeId == 'imgCodeUp') {
+                        console.log('tempData++' + tempData)
+                        fileList1.push(tempData);
+                    } else {
+                        fileList2.push(tempData);
+                    }
+
+                } else {
+                    alert(JSON.stringify(err));
+                }
+            });
+        } else if (sourceType == 2) { // 从相机中选择
+            api.getPicture({
+                sourceType: 'library',
+                encodingType: 'jpg',
+                mediaValue: 'pic',
+                destinationType: 'base64',
+                quality: 50,
+                targetWidth: 750,
+                targetHeight: 750
+            }, function(ret, err) {
+                if (ret) {
+                    $('#' + typeId).attr('src', ret.base64Data);
+                    var tempData = ret.data;
+                    if (tempData == '') {
+                        return
+                    }
+                    var res = tempData.split('/');
+                    if (typeId == 'imgCodeUp') {
+                        fileList1.push(tempData);
+                    } else {
+                        fileList2.push(tempData);
+                    }
+                } else {
+                    alert(JSON.stringify(err));
+                }
+            });
+        }
+    }
+</script>
+
+</html>

@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>打开/下载页面</title>
+    <link rel="stylesheet" type="text/css" href="../../css/style.css" />
+    <link rel="stylesheet" type="text/css" href="../../css/publish.css" />
+    <style>
+        .info-con-items {
+            height: auto;
+            line-height: 1.5;
+            padding: 10px 0;
+        }
+        
+        .info-con-items2 {
+            margin: 0 20px;
+        }
+        
+        .info-con-items button {
+            background: #ccc;
+            color: #fff;
+            font-size: 14px;
+            height: 27px;
+            line-height: 27px;
+            /* padding: 0px 12px; */
+            border-radius: 5px;
+            width: 90px;
+            margin-top: 15px;
+            margin-right: 10px;
+            outline: none;
+        }
+        
+        .info-con-items button.on {
+            background: #1cbb9e;
+        }
+        
+        #cons input {
+            height: 30px;
+            line-height: 30px
+        }
+        
+        .h30 {
+            height: 30px;
+            line-height: 30px;
+            margin-bottom: 10px;
+            margin-top: 10px;
+        }
+        
+        .con {
+            display: none;
+        }
+        
+        .cur {
+            display: block;
+        }
+        
+        .img-upload {
+            margin-left: 0;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="info-wrap">
+        <div class="info-con">
+            <div class="info-con-items2 border-b">
+                <span>描述</span>
+                <textarea name="" id="reward_desc" rows="5" placeholder="最多40个字" autofocus></textarea>
+
+            </div>
+            <div class="info-con-items">
+                <p>请选择一种上传方式(任选一种)</p>
+                <div id="tabs">
+                    <button class="on">填写网址</button>
+                    <button>上传二维码</button>
+                </div>
+                <div id="cons">
+                    <div class="con cur">
+                        <div class="h30 border-b">
+                            <span>填写网址</span>
+                            <div class="float-r">
+                                <input type="text" id="the_url" placeholder="请以http://或https://开头">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="con">
+                        <div class="img-box flex-wrap">
+                            <div class="img-upload" onclick="showAction('imgUpload');">
+                                <span class="deleteimg"><i class="iconfont icon-guanbi"></i></span>
+                                <img src="../../image/icon_upload.png" alt="" id="imgUpload">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!--    <div class="info-con">
+            <h3 class="info-title border-b">步骤说明图</h3>
+            <div class="info-con-upload-items">
+                <div class="step-box">
+                    <div class="step-box-tit"><span class="circle">1</span>上传</div>
+                    <div class="img-box flex-wrap">
+                        <div class="img-upload" onclick="showAction('stepImage');">
+                            <span class="deleteimg"><i class="iconfont icon-guanbi"></i></span>
+                            <img src="../../image/icon_upload.png" alt="" id="stepImage">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div> -->
+        <div class="btn confirm-publish-btn" id="confirm-submit-btn">提交</div>
+    </div>
+</body>
+<script type="text/javascript" src="../../script/api.js"></script>
+<script type="text/javascript" src="../../script/globalApp.js"></script>
+<script type="text/javascript" src="../../script/libs/zepto.js"></script>
+<script type="text/javascript">
+    var fileList = [];
+    apiready = function() {
+        // var pageParam = api.pageParam;
+        // alert(pageParam.con)
+        // console.log(pageParam)
+    };
+
+    $(function() {
+
+        $("#tabs").on('click', 'button', function() {
+            var index = $(this).index();
+            $(this).addClass('on').siblings().removeClass('on');
+            $("#cons .con").eq(index).addClass('cur').siblings().removeClass('cur')
+
+        });
+
+        $("#confirm-submit-btn").on('click', function() {
+            var pageId = api.pageParam.pageId;
+            var rewardStepId = $api.getStorage(pageId);
+            if (rewardStepId == undefined) {
+                rewardStepId = '';
+            }
+            var theUrl = $api.byId("the_url").value;
+            if ($api.byId("reward_desc").value == '') {
+                api.toast({
+                    msg: '请填写描述',
+                    location: 'bottom'
+                });
+                return false;
+            }
+
+            if (theUrl == '' && fileList.length == 0) {
+                api.toast({
+                    msg: '请选择上传方式',
+                    location: 'bottom'
+                });
+                return false;
+            }
+            
+            var params = {
+                stepType:'2',
+                showType: '1',
+                attribute:'0',
+                rewardPersonId: $api.getStorage("userId"),
+                rewardDesc: $api.byId("reward_desc").value,
+                rewardId: $api.getStorage("rewardId"),
+                rewardStepId: rewardStepId,
+                theUrl: theUrl,
+                pageId: pageId,
+            };
+
+            api.ajax({
+                url: globalData.baseUrl + globalData.addRewardStep,
+                method: 'post',
+                data: {
+                    values: params,
+                    files: {
+                        files: fileList,
+                    },
+                }
+            }, function(ret, err) {
+                if (ret) {
+                    $api.setStorage(pageId, ret.stepId);
+                     var stepCache = $api.getStorage("stepCache");
+                     if(stepCache == undefined){
+                        stepCache = '';
+                       }
+                       stepCache += pageId + ",";
+                       $api.setStorage("stepCache",stepCache);
+                       fileList = [];
+                      api.closeWin();
+                } else {
+                    api.toast({
+                        msg: '提交失败',
+                        duration: 2000,
+                        location: 'middle'
+                    });
+
+                }
+            });
+
+        });
+
+
+
+    })
+
+
+    // 上传图片
+    function showAction(params) {
+        api.actionSheet({
+            title: '上传图片',
+            cancelTitle: '取消',
+            buttons: ['拍照', '从手机相册选择']
+        }, function(ret, err) {
+            if (ret) {
+                getPicture(ret.buttonIndex, params);
+                $api.byId("the_url").value = '';
+            }
+        });
+    }
+
+    function getPicture(sourceType, typeId) {
+        if (sourceType == 1) { // 拍照
+            api.getPicture({
+                sourceType: 'camera',
+                encodingType: 'jpg',
+                mediaValue: 'pic',
+                allowEdit: false,
+                destinationType: 'base64',
+                quality: 90,
+                saveToPhotoAlbum: true
+            }, function(ret, err) {
+                if (ret) {
+                    $('#' + typeId).attr('src', ret.base64Data);
+                    var tempData = ret.data;
+                    var res = tempData.split('/');
+                    if (tempData == "") return
+                    fileList.push(tempData);
+                } else {
+                    //alert(JSON.stringify(err));
+                }
+            });
+        } else if (sourceType == 2) { // 从相机中选择
+            api.getPicture({
+                sourceType: 'library',
+                encodingType: 'jpg',
+                mediaValue: 'pic',
+                destinationType: 'base64',
+                quality: 50,
+                targetWidth: 750,
+                targetHeight: 750
+            }, function(ret, err) {
+                if (ret) {
+                    $('#' + typeId).attr('src', ret.base64Data);
+                    var tempData = ret.data;
+                    if (tempData == '') {
+                        return
+                    }
+                    var res = tempData.split('/');
+                    fileList.push(tempData);
+                } else {
+                    //  alert(JSON.stringify(err));
+                }
+            });
+        }
+    }
+</script>
+
+</html>

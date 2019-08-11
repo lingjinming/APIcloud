@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>审核失败原因</title>
+    <link rel="stylesheet" type="text/css" href="../../css/style.css" />
+    <link rel="stylesheet" type="text/css" href="../../css/publish.css" />
+    <style>
+        .info-con-items {
+            height: auto;
+            line-height: 1.5;
+            padding: 10px 0;
+        }
+
+        .info-con-items2 {
+            margin: 0 20px;
+        }
+
+        .img-upload {
+            margin-left: 0;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="info-wrap">
+        <div class="info-con">
+            <div class="info-con-items2 border-b">
+                <span>审核失败原因:</span>
+                <textarea name="" id="reward_desc" rows="5" placeholder="最多80个字" autofocus></textarea>
+            </div>
+        </div>
+        <div class="info-con">
+            <h3 class="info-title border-b">审核失败说明图</h3>
+            <div class="info-con-upload-items">
+                <div class="step-box">
+                    <div class="img-box flex-wrap">
+                        <div class="img-upload" onclick="showAction('verifyImg');">
+                            <span class="deleteimg"><i class="iconfont icon-guanbi"></i></span>
+                            <img src="../../image/icon_upload.png" alt="" id="verifyImg">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="btn confirm-publish-btn" id="confirm-submit-btn">提交</div>
+    </div>
+</body>
+<script type="text/javascript" src="../../script/api.js"></script>
+<script type="text/javascript" src="../../script/globalApp.js"></script>
+<script type="text/javascript" src="../../script/libs/zepto.js"></script>
+<script type="text/javascript">
+
+    apiready = function() {
+
+
+    };
+
+
+
+        $("#confirm-submit-btn").on('click', function() {
+           var comment = $api.byId("reward_desc").value;
+           var base64Img = $("#verifyImg").attr('src');
+           if(comment == ''){
+                api.toast({
+                            msg: '请填写审核失败原因',
+                            duration: 2000,
+                            location: 'middle'
+                        });
+                        return false;
+           }
+           if(base64Img == '../../image/icon_upload.png'){
+//                api.toast({
+//                          msg: '请上传审核失败说明图',
+//                          duration: 2000,
+//                          location: 'middle'
+//                      });
+//                      return false;
+                  base64Img = '';
+              }
+              var pageParam = api.pageParam.pageParam;
+              var rewardId = pageParam.rewardId;
+              var userId = pageParam.userId;
+              var checkUserId = pageParam.checkUserId;
+              var relId = pageParam.relId;
+
+            var params = {
+               rewardId:rewardId,
+               relId:relId,
+               userId:userId,
+               checkUserId:checkUserId,
+               comment:comment,
+               base64Img:base64Img,
+               type:'2',
+            };
+
+              api.ajax({
+                url: globalData.baseUrl + globalData.checkUserReward,
+                method: 'POST',
+                data: {
+                    values: params,
+                }
+            }, function(ret, err) {
+                if(ret.status == 'success'){
+                  api.toast({
+                        msg: '审核成功！',
+                        location: 'bottom'
+                    });
+                    api.sendEvent({
+                        name: 'initCheckFailPage',
+                    });
+                    api.sendEvent({
+                        name: 'closeFailWin',
+                    });
+                }
+            });
+
+
+        });
+
+
+
+    function showAction(params) {
+        api.actionSheet({
+            title: '上传图片',
+            cancelTitle: '取消',
+            buttons: ['拍照', '从手机相册选择']
+        }, function(ret, err) {
+            if (ret) {
+                getPicture(ret.buttonIndex, params);
+            }
+        });
+    }
+
+    function getPicture(sourceType, typeId) {
+        if (sourceType == 1) { // 拍照
+            api.getPicture({
+                sourceType: 'camera',
+                encodingType: 'jpg',
+                mediaValue: 'pic',
+                allowEdit: false,
+                destinationType: 'base64',
+                quality: 90,
+                saveToPhotoAlbum: true
+            }, function(ret, err) {
+                if (ret) {
+                    $('#' + typeId).attr('src', ret.base64Data);
+                } else {
+                    //alert(JSON.stringify(err));
+                }
+            });
+        } else if (sourceType == 2) { // 从相机中选择
+            api.getPicture({
+                sourceType: 'library',
+                encodingType: 'jpg',
+                mediaValue: 'pic',
+                destinationType: 'base64',
+                quality: 50,
+                targetWidth: 750,
+                targetHeight: 750
+            }, function(ret, err) {
+                if (ret) {
+                    $('#' + typeId).attr('src', ret.base64Data);
+                } else {
+                    //  alert(JSON.stringify(err));
+                }
+            });
+        }
+    }
+</script>
+
+</html>

@@ -1,0 +1,89 @@
+<!doctype html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>index</title>
+</head>
+
+<body>
+</body>
+
+</html>
+<script type="text/javascript" src="script/api.js"></script>
+<script type="text/javascript">
+    apiready = function() {
+        $api.fixStatusBar($api.dom('header'));
+        api.showLaunchView();
+         checkUpdate();//检查更新
+    }
+
+
+    function checkUpdate(){
+      var mam = api.require('mam');
+      mam.checkUpdate(function( ret, err ){
+          if (ret) {
+              var result = ret.result;
+              if(result.update == true && result.closed == false){
+                if (api.systemType == "android") {
+                    api.download({
+                        url: result.source,
+                        report: true,
+                    },function(ret, err){
+                      if (ret && 0 == ret.state) {/* 下载进度 */
+                        api.toast({
+                                msg : "正在更新应用" + ret.percent + "%",
+                                duration : 2000
+                                });
+                      }
+                     if (ret && 1 == ret.state) {/* 下载完成 */
+                       var savePath = ret.savePath;
+                          api.installApp({
+                             appUri : savePath
+                             });
+                     }
+                    });
+                }
+                 if (api.systemType == "ios") {
+                   api.installApp({
+                           appUri : result.source
+                      });
+                 }
+            openWinLogin(); //登录
+            }else{
+            openWinLogin(); //登录
+            }
+          } else{
+            //  alert( JSON.stringify( err ) );
+          }
+      });
+
+    }
+
+    function openWinMain() {
+        api.openWin({
+            name: 'rewardlist_win',
+            url: './html/rewardlist_win.html',
+            bounces: false,
+            reload: true,
+            pageParam: {
+                key: 'value'
+            },
+        });
+    }
+
+    function openWinLogin() {
+        api.openWin({
+            name: 'login_win',
+            url: './html/login_win.html',
+            bounces: false,
+            pageParam: {
+                key: 'value'
+            },
+            slidBackEnabled: false,
+        });
+    }
+
+</script>

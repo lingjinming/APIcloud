@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>个人中心</title>
+    <link rel="stylesheet" type="text/css" href="../../css/style.css" />
+    <link rel="stylesheet" type="text/css" href="../../css/publish.css" />
+
+    <style>
+        body {
+            background: #f4f4f4;
+        }
+
+        #app {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .operation_ul {
+            width: 100%;
+            background: #fff;
+        }
+
+        .operation_ul li {
+            margin: 0 20px;
+            border-bottom: 1px solid #ddd;
+            height: 45px;
+            line-height: 45px;
+            list-style: none;
+            position: relative;
+            background: #fff;
+        }
+
+        .operation_ul li:last-child {
+            border-bottom: none;
+        }
+
+        .operation_ul li i {
+            font-size: 20px;
+            position: absolute;
+            right: 0;
+            top: 0
+        }
+
+        .userimg {
+            height: 100px !important;
+            line-height: 100px !important;
+            margin-bottom: 10px;
+            padding: 0 20px;
+            background: #fff;
+            border: none;
+        }
+
+        .userimg img {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            margin-top: 15px;
+            border: 2px solid #dcdcdc;
+        }
+
+        .sign {
+            background: #fff;
+            margin-top: 10px;
+            height: 45px;
+            line-height: 45px;
+            padding: 0 20px;
+        }
+
+        .sign span {
+            width: 150px;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            text-align: right;
+        }
+
+        .iconfont {
+            color: #979797;
+            font-size: 15px !important;
+            margin-left: 5px;
+        }
+
+        p {
+            display: inline;
+        }
+
+        .birthday {
+            position: absolute;
+            right: 20px;
+            top: 13px;
+            text-align: right;
+            color: #666;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="app">
+        <div id="userimg" class="userimg">头像<i class="iconfont icon-youjiantou float-r"></i><img v-cloak class="float-r" :src="headportrait" alt="miss"> </i>
+        </div>
+        <ul class="operation_ul">
+            <li>账号<span v-cloak id="account" class="float-r">{{tel}}</span></li>
+            <!--  <li>ID<span v-cloak id="userid" class="float-r">{{userId}}</span></li> -->
+            <li data-frm="nickname_frm">
+                <p>昵称</p><span v-cloak id="nickname" class="marr20 float-r">{{userName}}</span><i class="iconfont icon-youjiantou"></i></li>
+            <li id="sexLi">性别<span v-cloak id="sex" class="marr20 float-r">{{sexName}}</span><i class="iconfont icon-youjiantou"></i></li>
+            <li>
+                生日
+                <input class="birthday" type="text" id="reward_end_time" :value="birthday" readonly>
+                <i class="iconfont icon-youjiantou"></i>
+                <i class="iconfont icon-youjiantou float-r"></i>
+            </li>
+            <li data-frm="qq_frm">
+                <p>QQ</p><span id="qq" v-cloak class="marr20 float-r">{{qq}}</span><i class="iconfont icon-youjiantou float-r"></i></li>
+        </ul>
+        <div data-frm="sign_frm" class="sign">
+            <p>个性签名</p><i class="iconfont icon-youjiantou float-r"></i><span id="sign" v-cloak class="float-r">{{sign}}</span></div>
+    </div>
+</body>
+<script type="text/javascript" src="../../script/globalApp.js"></script>
+<script type="text/javascript" src="../../script/api.js"></script>
+<script type="text/javascript" src="../../script/libs/zepto.js"></script>
+<script type="text/javascript" src="../../script/libs/vue.js"></script>
+<script type="text/javascript" src="../../script/libs/datePicker.js"></script>
+
+<script type="text/javascript">
+    var fileList1 = [];
+    var fileList2 = [];
+    var userId = $api.getStorage('userId');
+    apiready = function() {
+
+        var vm = new Vue({
+                el: "#app",
+                data: {
+                    userId,
+                    tel: $api.getStorage('tel'),
+                    userName: $api.getStorage('userName'),
+                    sex: '',
+                    birthday: "",
+                    sign: '',
+                    qq: '',
+                    headportrait: '../../image/headLogo.png'
+                },
+                methods: {
+                    getUserInfoByIdFn: function() {
+                        api.ajax({
+                            url: globalData.baseUrl + globalData.getUserInfoById,
+                            method: 'GET',
+                            data: {
+                                values: {
+                                    userId: userId
+                                }
+                            }
+                        }, function(ret, err) {
+                            if (ret) {
+                                vm.userId = ret.userId;
+                                vm.userName = ret.userName;
+                                vm.birthday = ret.birthday;
+                                vm.qq = ret.qq;
+                                vm.sex = ret.sex;
+                                vm.sexName = ret.sexName;
+
+                                if (ret.headportrait) {
+                                    vm.headportrait = globalData.imageUrl + ret.headportrait
+                                }
+                                vm.sign = ret.signature;
+                                console.log("vm.headportrait::" + vm.headportrait)
+                            } else {
+                                api.toast({
+                                    msg: '获取用户信息失败',
+                                    location: 'bottom'
+                                });
+                            }
+                        });
+                    }
+                },
+                created() {
+                    this.getUserInfoByIdFn()
+                },
+            })
+            //头像
+        $("#userimg").on('click', function() {
+            showAction();
+        })
+
+        function showAction(params) {
+            api.actionSheet({
+                title: '上传图片',
+                cancelTitle: '取消',
+                buttons: ['拍照', '从手机相册选择']
+            }, function(ret, err) {
+                if (ret) {
+                    getPicture(ret.buttonIndex);
+                }
+            });
+        }
+
+        function getPicture(sourceType) {
+            if (sourceType == 1) { // 拍照
+                api.getPicture({
+                    sourceType: 'camera',
+                    encodingType: 'jpg',
+                    mediaValue: 'pic',
+                    allowEdit: false,
+                    destinationType: 'base64',
+                    quality: 90,
+                    saveToPhotoAlbum: true
+                }, function(ret, err) {
+                    console.log("相机")
+                    if (ret) {
+                        $('#userimg img').attr('src', ret.base64Data);
+                        var tempData = ret.data;
+                        if (tempData == "") return
+                        fileList1.push(tempData);
+                        editImg()
+                    } else {
+                        alert(JSON.stringify(err));
+                    }
+                });
+            } else if (sourceType == 2) { // 从相册中选择
+
+                api.getPicture({
+                    sourceType: 'library',
+                    encodingType: 'jpg',
+                    mediaValue: 'pic',
+                    destinationType: 'base64',
+                    quality: 50,
+                    targetWidth: 750,
+                    targetHeight: 750
+                }, function(ret, err) {
+                    console.log("相册")
+
+                    if (ret) {
+                        $('#userimg img').attr('src', ret.base64Data);
+                        var tempData = ret.data;
+                        if (tempData == "") return
+                        fileList1.push(tempData);
+                        editImg();
+                    } else {
+                        alert(JSON.stringify(err));
+                    }
+                });
+            }
+        }
+
+        function editImg() {
+            var token = $api.getStorage('token');
+            var params = {
+                token: token,
+                userId: userId,
+            };
+
+            api.ajax({
+                url: globalData.baseUrl + globalData.updateHeadportrait,
+                method: 'POST',
+                data: {
+                    values: params,
+                    files: {
+                        file: fileList1
+                    },
+                }
+            }, function(ret, err) {
+                fileList1 = [];
+                if (ret.path != '') {
+                    $api.setStorage('tx', ret.path);
+                }
+                api.sendEvent({
+                    name: 'editImg',
+                    extra: {
+                        msg: '初始化'
+                    }
+                });
+            });
+        }
+
+        //性别
+        $("#sexLi").on('click', function(e) {
+            e.stopPropagation()
+            api.actionSheet({
+                title: '选择性别',
+                buttons: ['男', '女']
+            }, function(ret, err) {
+                var index = ret.buttonIndex;
+                if (index == 1) {
+
+                    $("#sex").html('男')
+                    api.ajax({
+                        url: globalData.baseUrl + globalData.updateSex,
+                        method: 'POST',
+                        data: {
+                            values: {
+                                userId,
+                                sex: "1"
+                            }
+                        }
+                    }, function(ret, err) {
+                        api.toast({
+                            msg: '修改成功',
+                            location: 'bottom',
+                            time: 1000
+                        });
+                    });
+                } else {
+                    $("#sex").html('女')
+                    api.ajax({
+                        url: globalData.baseUrl + globalData.updateSex,
+                        method: 'POST',
+                        data: {
+                            values: {
+                                userId,
+                                sex: "2"
+                            }
+                        }
+                    }, function(ret, err) {
+                        api.toast({
+                            msg: '修改成功',
+                            location: 'bottom',
+                            time: 1000
+                        });
+                    });
+                }
+
+            });
+        })
+        $("#app").on('click', 'li,div', function(e) {
+            e.preventDefault()
+
+            if ($(this).data('frm')) {
+                api.openFrame({
+                    name: $(this).data('frm'),
+                    url: "./" + $(this).data('frm') + ".html"
+                }); //打开个人信息更新页面
+            }
+        })
+
+        function getNowFormatDate() {
+            var date = new Date();
+            var seperator1 = "-";
+            var year = date.getFullYear();
+            var month = date.getMonth() + 1;
+            var strDate = date.getDate();
+            if (month >= 1 && month <= 9) {
+                month = "0" + month;
+            }
+            if (strDate >= 0 && strDate <= 9) {
+                strDate = "0" + strDate;
+            }
+            var currentdate = year + seperator1 + month + seperator1 + strDate;
+            return currentdate;
+        }
+        //  生日时间
+        var calendar = new datePicker();
+        calendar.init({
+            'trigger': '#reward_end_time',
+            /*按钮选择器，用于触发弹出插件*/
+            'type': 'date',
+            /*模式：date日期；datetime日期时间；time时间；ym年月；*/
+            'minDate': '1960-1-1',
+            /*最小日期*/
+            'maxDate': getNowFormatDate(),
+            /*最大日期*/
+            'onSubmit': function() { /*确认时触发事件*/
+
+                var birthday = calendar.value;
+                api.ajax({
+                    url: globalData.baseUrl + globalData.updateBirthday,
+                    method: "POST",
+                    data: {
+                        values: {
+                            userId,
+                            birthday
+                        }
+                    }
+                })
+                api.toast({
+                    msg: '修改成功',
+                    location: 'bottom',
+                    time: 1000
+                });
+            },
+            'onClose': function() { /*取消时触发事件*/ }
+        });
+
+
+    }
+</script>
+
+</html>

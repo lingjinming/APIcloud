@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>发布结果</title>
+    <link rel="stylesheet" type="text/css" href="../../css/style.css" />
+    <style>
+        header .back {
+            top: 25px;
+            line-height: 50px;
+            text-indent: 30px;
+            font-size: 16px;
+            color: #fff;
+        }
+    </style>
+</head>
+
+<body>
+    <header id="header" class="header">
+        <div class="back" tapmode onclick="backToHome()">首页</div>
+        <h1 id="title">发布结果</h1>
+    </header>
+</body>
+<script type="text/javascript" src="../../script/api.js"></script>
+<script type="text/javascript" src="../../script/libs/zepto.js"></script>
+
+<script type="text/javascript">
+    apiready = function() {
+        var header = $api.byId('header');
+        $api.fixStatusBar(header);
+        var headerH = $api.offset(header).h;
+        var pageParam = api.pageParam;
+        // var con = pageParam.con;
+        // var id = pageParam.id;
+        // var frm_name = pageParam.frm_name;
+        // var title = $api.byId("title"); //修改标题
+        // $api.text(title, "发布" + con + "悬赏")
+        // 打开对应Frame
+        api.openFrame({
+            name: 'publish_result_frm',
+            url: './publish_result_frm.html',
+            rect: {
+                marginTop: headerH,
+                w: 'auto',
+                h: 'auto'
+            },
+            pageParam: {
+                // con: con,
+                // id: id
+            },
+            slidBackEnabled: false,
+            bounces: false,
+            softInputBarEnabled: false //不显示键盘上方的工具条
+        });
+
+    };
+
+    function backToHome() {
+        api.openWin({
+            name: 'rewardlist_win',
+            url: '../rewardlist_win.html',
+            bounces: false,
+            pageParam: {
+                key: 'value'
+            },
+        });
+    }
+</script>
+
+</html>

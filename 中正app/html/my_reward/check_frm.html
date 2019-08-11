@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>审核悬赏</title>
+    <link rel="stylesheet" type="text/css" href="../../css/style.css" />
+    <link rel="stylesheet" type="text/css" href="../../css/publish.css" />
+    <style>
+        .img {
+            width: 70%;
+            margin: 10px 0;
+        }
+
+        .check-btn {
+            width: 50%;
+            height: 50px;
+            text-align: center;
+            line-height: 50px;
+            position: fixed;
+            bottom: 0;
+            right: 0;
+            color: #fff;
+            background: #1cbb9e;
+        }
+
+        .orange-color {
+            background: orange;
+            right: 50%;
+        }
+
+        .img-upload {
+            position: relative;
+            width: 100%;
+            margin-left: 0;
+        }
+
+        .img-box>div img {
+            width: 80%;
+            height: auto
+        }
+
+        .info {
+            height: 40px;
+            line-height: 40px
+        }
+
+        .info-con-items {
+            clear: both;
+            background: #fff;
+        }
+
+        .info-con,
+        .info-con-upload-items,
+        #baseInfo {
+            height: auto !important;
+            clear: both;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="info-wrap" id='swiper'>
+        <div class="info-con" id="baseInfo">
+
+        </div>
+        <div class="info-con">
+            <h3 class="info-title border-b">用户截图信息</h3>
+            <!--<div class="info-con-upload-items">
+                <img src="../../image/icon_upload.png" alt="" class="img">
+
+            </div>-->
+            <div class="info-con-upload-items" id="imgInfo">
+                <!--<div class="step-box">
+                        <div class="step-box-tit"><span class="circle">1</span>下载二维码，打开支付宝识别二维码</div>
+                        <div class="img-box flex-wrap">
+                            <div class="img-upload">
+                                <img src="../../image/icon_upload.png" alt="miss" id="">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="step-box">
+                        <div class="step-box-tit"><span class="circle">2</span>保存二维码打开淘宝扫一扫(成功示例如下)</div>
+                         <div class="info">
+                           11111
+                        </div>
+                    </div> -->
+            </div>
+        </div>
+        <div class="info-con marb50" id='reservedInfo'>
+
+        </div>
+        <div class="btn check-btn orange-color" id="check-fail">审核失败</div>
+        <div class="btn check-btn" id="check-pass">审核通过</div>
+
+    </div>
+</body>
+<script type="text/javascript" src="../../script/api.js"></script>
+<script type="text/javascript" src="../../script/libs/zepto.js"></script>
+<script type="text/javascript" src="../../script/libs/touch.js"></script>
+<script type="text/javascript" src="../../script/globalApp.js"></script>
+
+<script type="text/javascript">
+    var countNum = 0;
+    var relId = '';
+    var userId = '';
+    apiready = function() {
+        initPage();
+        api.addEventListener({
+            name: 'initCheckFailPage'
+        }, function(ret, err){
+            initNext();
+        });
+    };
+
+
+    function initPage() {
+        var pageParam = api.pageParam.pageParam;
+        var rewardId = pageParam.rewardId;
+        var pageNo = $api.getStorage('pageNo');
+        if (pageNo == undefined || pageNo == 'NaN') {
+            $api.setStorage('pageNo', '0');
+            pageNo = '0';
+        }
+        var params = {
+            rewardId: rewardId,
+            pageNo: pageNo,
+        };
+        api.ajax({
+            url: globalData.baseUrl + globalData.getCheckRelById,
+            method: 'get',
+            data: {
+                values: params,
+            }
+        }, function(ret, err) {
+            if (ret) {
+
+                var pageList = ret.pageList;
+                var infoList = ret.infoList;
+
+                if (pageList != '') {
+                    relId = pageList[0].relId;
+                    userId = pageList[0].userId;
+                    var tml = '';
+                    var tml1 = '';
+                    var tml2 = '';
+                    for (var i = 0; i < pageList.length; i++) {
+                        tml += '<h3 class="info-title border-b">基本信息</h3>';
+                        tml += '<div class="info-con-items border-b"><span>悬赏人</span><div class="float-l">' + pageList[i].userName + '</div></div>';
+                        tml += '<div class="info-con-items border-b"><span>报名时间</span><div class="float-l" id="">' + pageList[i].applyTime + '</div></div>';
+                        tml += '<div class="info-con-items border-b"><span>提交时间</span><div class="float-l" id="">' + pageList[i].commitTime + '</div></div>';
+                        tml += '<div class="info-con-items"><span>用时</span><div class="float-l" id="">' + pageList[i].distanceTime + '</div></div>';
+
+                        tml2 = `<h3 class="info-title border-b">用户信息</h3><div class="info-con-items"><span>${pageList[i].reservedInfo}</span>
+                        <div class="float-l">${pageList[i].userReservedInfoContent}</div> </div>`;
+                    }
+
+                    var n = 0;
+                    var type = '';
+                    var imagePath='';
+                    var allPath = '';
+                    for (var i = 0; i < infoList.length; i++) {
+                        n = i + 1;
+                        type = infoList[i].type;
+                        if (type == '2') {
+                          imagePath = infoList[i].content;
+                            tml1 += '<div class="step-box"><div class="step-box-tit"><span class="circle">' + n + '</span>' + infoList[i].stepName + '</div>';
+                            if(imagePath.indexOf('http') == 0){
+                                  allPath = imagePath;
+                            }else{
+                                   allPath = globalData.imageUrl + imagePath;
+                            }
+                            tml1 += '<div class="img-box flex-wrap"><div class="img-upload"><img src="' + allPath + '" id=""></div></div> </div>';
+                        } else {
+                            tml1 += '<div class="step-box"><div class="step-box-tit"><span class="circle">' + n + '</span>' + infoList[i].stepName + '</div>';
+                            tml1 += '<div class="info">' + infoList[i].content + '</div> </div>'
+                        }
+
+                        $('#baseInfo').html(tml);
+                        $('#imgInfo').html(tml1);
+                        $('#reservedInfo').html(tml2);
+
+                    }
+                    countNum = ret.countNum;
+                }
+            }
+        });
+    };
+
+    $("#swiper").swipeLeft(function() {
+        initNext();
+    });
+    $("#swiper").swipeRight(function() {
+        var pageNo = $api.getStorage("pageNo");
+        pageNo = parseInt(pageNo) - 1;
+        if (pageNo < 0) {
+            api.toast({
+                msg: '已经是第一个',
+                location: 'bottom'
+            });
+
+        } else {
+            $api.setStorage("pageNo", pageNo);
+            initPage();
+        }
+    });
+    $("#check-fail").on('click', function() {
+        var pageParam = api.pageParam.pageParam;
+        var rewardId = pageParam.rewardId;
+        api.openWin({
+            name: 'check_fail_reason_win',
+            url: './check_fail_reason_win.html',
+            bounces: false,
+            pageParam: {
+                rewardId: rewardId,
+                relId: relId,
+                userId: userId,
+                checkUserId: $api.getStorage("userId"),
+            },
+        });
+    })
+
+    $("#check-pass").on('click', function() {
+        var pageParam = api.pageParam.pageParam;
+        var rewardId = pageParam.rewardId;
+        var params = {
+            rewardId: rewardId,
+            relId: relId,
+            userId: userId,
+            checkUserId: $api.getStorage("userId"),
+            comment: '',
+            base64Img: '',
+            type: '1',
+        };
+        api.ajax({
+            url: globalData.baseUrl + globalData.checkUserReward,
+            method: 'POST',
+            data: {
+                values: params,
+            }
+        }, function(ret, err) {
+            if (ret.status == 'success') {
+                api.toast({
+                    msg: '审核成功！',
+                    location: 'bottom'
+                });
+                initNext();
+            }
+        });
+    });
+
+    function initNext() {
+        var pageNo = $api.getStorage("pageNo");
+        pageNo = parseInt(pageNo) + 1;
+        if (pageNo >= countNum) {
+            api.toast({
+                msg: '已经是最后一个',
+                location: 'bottom'
+            });
+        } else {
+            $api.setStorage("pageNo", pageNo);
+            initPage();
+        }
+    }
+</script>
+
+</html>

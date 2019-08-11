@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>个人中心</title>
+    <link rel="stylesheet" type="text/css" href="../css/style.css" />
+    <style>
+        body {
+            background: #f4f4f4;
+        }
+
+        #app {
+            position: relative;
+            height: 100vh;
+        }
+
+        .user-info {
+            position: relative;
+            height: 270px;
+            background: url(../image/bg_user.png) no-repeat center;
+            background-size: 100% 100%;
+            margin-bottom: 10px;
+        }
+
+        .operation_ul {
+            width: 100%;
+            background: #fff;
+        }
+
+        .operation_ul li {
+            margin: 0 20px;
+            border-bottom: 1px solid #ddd;
+            height: 45px;
+            line-height: 45px;
+        }
+
+        .operation_ul li:last-child {
+            border-bottom: none;
+        }
+
+        .operation_ul li i:first-child {
+            font-size: 20px;
+            margin: 0 5px;
+            position: relative;
+            top: 3px;
+        }
+        /* .setimg {
+            height: 40px;
+            line-height: 40px;
+            text-align: right;
+            padding-right: 20px;
+        }
+
+        .setimg i {
+            font-size: 20px;
+            color: #fff;
+        } */
+
+        .user-img {
+            text-align: center;
+            position: relative;
+            /* background: rgba(228, 240, 228, .5); */
+            padding: 5px;
+            width: 90px;
+            height: 90px;
+            border-radius: 50%;
+            margin: 0px auto;
+            padding-top: 10px;
+            margin-bottom: 20px;
+        }
+
+        .user-img img {
+            width: 90px;
+            border-radius: 50%;
+            height: 90px;
+            box-shadow: 0 0 5px 2px rgb(245, 240, 240);
+        }
+
+        .user-img i {
+            color: #fba039;
+            font-size: 20px;
+            position: absolute;
+            z-index: 2;
+            bottom: 5px;
+            right: -5px;
+            text-decoration: underline;
+        }
+
+        .user-info p {
+            text-align: center;
+            color: #fff;
+            font-size: 16px;
+            height: 25px;
+            line-height: 25px;
+        }
+
+        .user-info p:last-child {
+            font-size: 14px;
+        }
+
+        .balance {
+            height: 50px;
+            line-height: 50px;
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            padding-left: 25px;
+            padding-right: 20px;
+        }
+
+        .balance img {
+            max-width: 100%;
+            width: 90px;
+            float: right;
+            margin-top: 8px;
+        }
+
+        .icon-reward {
+            color: #ffd200
+        }
+
+        .icon-xunzhang {
+            color: #00b4ff
+        }
+
+        .icon-qian {
+            color: #ff9000
+        }
+
+        .icon-guanli {
+            color: rgb(64, 230, 174)
+        }
+
+        .icon-icon19 {
+            color: rgb(159, 62, 250)
+        }
+    </style>
+</head>
+
+<body>
+    <div id="app">
+        <div class="user-info">
+            <!-- <div class="setimg"><i class="iconfont icon-shezhi"></i></div> -->
+            <div class="user-img" id="userImg">
+
+            </div>
+            <div id="userBaseInfo">
+
+            </div>
+        </div>
+        <ul class="operation_ul">
+            <!-- <li data-frm='my_reward_win'><i class="iconfont icon-reward"></i>我的赏单<i class="iconfont icon-youjiantou float-r"></i></li>
+            <li data-frm='mycredit_win'><i class="iconfont icon-xunzhang"></i>我的信誉<i class="iconfont icon-youjiantou float-r"></i></li>
+            <li data-frm='publish_win'><i class="iconfont icon-qian"></i>发布悬赏<i class="iconfont icon-youjiantou float-r"></i></li>
+            <li data-frm='manage_win'><i class="iconfont icon-guanli"></i>管理悬赏<i class="iconfont icon-youjiantou float-r"></i></li> -->
+            <!-- <li data-frm='check_win'><i class="iconfont icon-icon19"></i>审核悬赏<i class="iconfont icon-youjiantou float-r"></i></li> -->
+        </ul>
+    </div>
+</body>
+<script type="text/javascript" src="../script/globalApp.js"></script>
+<script type="text/javascript" src="../script/api.js"></script>
+<script type="text/javascript" src="../script/libs/zepto.js"></script>
+
+<script type="text/javascript">
+    var userId = $api.getStorage('userId');
+    var tel = $api.getStorage('tel');
+    var userName = $api.getStorage('userName');
+    apiready = function() {
+        initMyCenter();
+        api.addEventListener({
+            name: 'editImg'
+        }, function(ret, err) {
+            initMyCenter();
+        });
+
+        api.addEventListener({
+            name: 'cllInit'
+        }, function(ret, err) {
+            initMyCenter();
+        });
+
+        api.addEventListener({
+            name: 'swiperight'
+        }, function(ret, err){
+
+        });
+
+    }
+
+    function initMyCenter() {
+        var coin = '';
+        var tml = '';
+        api.ajax({
+            url: globalData.baseUrl + globalData.getMyCoin,
+            method: 'post',
+            data: {
+                values: {
+                    "userId": userId
+                }
+            }
+        }, function(ret, err) {
+            var head = '../image/headLogo.png';
+            if (ret.headportrait) {
+                head = globalData.imageUrl + ret.headportrait;
+            }
+            var tml1 = '';
+            if (head == '') {
+                tml1 = `<img src="../image/icon_vote.png" alt="">
+                      <i class="iconfont icon-bianji"></i>`;
+            } else {
+                tml1 = `<img src="${head}" alt="">
+                      <i class="iconfont icon-bianji"></i>`;
+            }
+            coin = ret.coin;
+            tml = '<p>' + userName + '</p><p>' + tel + '</p><div class="balance" id="openBalanceWin">帐户余额(元): <span id="coin" class="">' + coin + '</span><img src="../image/tixian.jpg" alt=""></div>';
+            $('#userImg').html(tml1);
+            $('#userBaseInfo').html(tml);
+            // 提现 若未绑定支付宝则先绑定支付宝
+            $("#openBalanceWin").on("click", function() {
+                isBoundAlipay()
+            });
+        });
+
+        api.ajax({
+            url: globalData.baseUrl + globalData.getMenuInfo,
+            method: 'get',
+            data: {
+                values: {
+                    "userId": userId
+                }
+            }
+        }, function(ret, err) {
+          var menuInfo = ret.menuInfo;
+          var menutml = '';
+          for (var i = 0; i < menuInfo.length; i++) {
+              menutml += '<li data-frm="' + menuInfo[i].menuUrl + '"><i class="iconfont ' + menuInfo[i].menuIconUrl + '"></i>' + menuInfo[i].menuName + '<i class="iconfont icon-youjiantou float-r"></i></li>';
+          }
+          $('.operation_ul').html(menutml);
+        });
+    }
+
+
+    function isBoundAlipay() {
+        api.ajax({
+            url: globalData.baseUrl + globalData.isBound,
+            method: 'get',
+            data: {
+                values: {
+                    "userId": userId
+                }
+            }
+        }, function(ret, err) {
+            if (ret.status) {
+                var payAccount = ret.payAccount;
+                var pCoin = $('#coin').html();
+                // alert("已经绑定" + payAccount)
+                api.openWin({
+                    name: 'balance_win',
+                    url: './balance_win.html',
+                    pageParam: {
+                        payAccount: payAccount,
+                        pCoin: pCoin
+                    }
+                });
+            } else {
+                api.confirm({
+                    title: '提示信息',
+                    msg: '暂未绑定支付宝账号，提现请先绑定支付宝账号！',
+                    buttons: ['确定', '取消']
+                }, function(ret, err) {
+                    var index = ret.buttonIndex;
+                    if (index == 1) {
+                        api.openWin({
+                            name: 'bindAlipay_win',
+                            url: './bindAlipay_win.html',
+                            pageParam: {
+                                key: 'value'
+                            }
+                        });
+                    }
+                });
+            }
+        });
+    }
+    $(".user-img").on('click', function() {
+        // return false;
+        api.openWin({
+            name: 'user_settings_win',
+            url: './my_reward/user_settings_win.html',
+            bounces: false,
+        });
+    });
+
+    $("#app").on('click', 'li', function() {
+        var frmurl = $(this).data("frm");
+        console.log(frmurl)
+        if (frmurl) {
+            openWinMain()
+        }
+
+        function openWinMain() {
+            api.openWin({
+                name: frmurl,
+                url: './' + frmurl + '.html',
+                bounces: false,
+                pageParam: {
+                    key: 'value'
+                }
+            });
+        }
+    });
+</script>
+
+</html>

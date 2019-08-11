@@ -1,0 +1,210 @@
+<!doctype html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>赏单列表</title>
+    <link rel="stylesheet" type="text/css" href="../css/style.css" />
+    <style>
+        header {
+            background: #1cbb9e
+        }
+        
+        .xiaoxiLi {
+            position: relative;
+        }
+        
+        .xiaoxiLi::after {
+            position: absolute;
+            content: "";
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: red;
+            right: 39%;
+            top: 8px;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="wrap" class="flex-wrap flex-vertical">
+        <header id="header">
+            <ul>
+                <li class="border-b active" id="js-header-li">悬赏</li>
+                <li class="border-b">信息</li>
+                <li></li>
+            </ul>
+        </header>
+        <div id="main" class="flex-con">
+
+        </div>
+        <div id="footer" class="border-t">
+            <ul class="flex-wrap">
+                <li tapmode class="flex-con active" onclick="randomSwitchBtn( this );"><i class="icon iconfont icon-homepage_fill-copy"></i>首 页</li>
+                <li tapmode id="messageLi" class="flex-con" onclick="randomSwitchBtn( this );">
+                    <i class="icon iconfont icon-xiaoxi-fill"></i>消 息
+                </li>
+                <li tapmode class="flex-con" onclick="randomSwitchBtn( this )"><i class="icon iconfont icon-wo_fill"></i>我 的</li>
+            </ul>
+        </div>
+    </div>
+</body>
+
+</html>
+<script type="text/javascript" src="../script/globalApp.js"></script>
+<script type="text/javascript" src="../script/api.js"></script>
+<!-- <script type="text/javascript" src="../script/libs/vue.js"></script> -->
+<script type="text/javascript" src="../script/libs/zepto.js"></script>
+
+<script type="text/javascript">
+    apiready = function() {
+        $api.fixStatusBar($api.dom('header'));
+
+        var header = $api.byId('header');
+
+        var footer = $api.byId('footer')
+
+        var headerLi = $api.byId('js-header-li');
+
+        api.setStatusBarStyle({
+            style: 'light',
+            color: '#1cbb9e'
+        });
+
+        api.addEventListener({
+            name: 'addMessageLi'
+        }, function(ret, err) {
+            addMessageLi();
+        });
+        api.addEventListener({
+            name: 'removeMessageLi'
+        }, function(ret, err) {
+            removeMessageLi();
+        });
+
+        var ci = 0;
+        var time1, time2;
+
+        api.addEventListener({
+            name: 'keyback'
+        }, function(ret, err) {
+            if (ci == 0) {
+                time1 = new Date().getTime();
+                ci = 1;
+                api.toast({
+                    msg: '再按一次返回键退出'
+                });
+            } else if (ci == 1) {
+                time2 = new Date().getTime();
+                if (time2 - time1 < 3000) {
+                    api.closeWidget({
+                        id: api.appId,
+                        retData: {
+                            name: 'closeWidget'
+                        },
+                        silent: true
+                    });
+
+                } else {
+                    ci = 0;
+                    api.toast({
+                        msg: '再按一次返回键退出'
+                    });
+                }
+            }
+        });
+        funIniGroup();
+    }
+
+    function funIniGroup() {
+        var eHeaderLis = $api.domAll('header li'),
+            frames = [];
+        for (var i = 0, len = eHeaderLis.length; i < len; i++) {
+            frames.push({
+                name: 'frame' + i,
+                url: './frame' + i + '.html',
+                bgColor: '#fff',
+                bounces: true
+            })
+        }
+
+        api.openFrameGroup({
+            name: 'group',
+            scrollEnabled: false,
+            rect: {
+                x: 0,
+                y: $api.dom('header').offsetHeight,
+                w: api.winWidth,
+                h: $api.dom('#main').offsetHeight
+            },
+            index: 0,
+            frames: frames
+        }, function(ret, err) {
+            api.setFrameAttr({
+                name: 'frame0',
+                bounces: false
+            });
+            api.setFrameAttr({
+                name: 'frame2',
+                bounces: false
+            });
+        });
+    }
+
+    // 随意切换按钮
+    function randomSwitchBtn(tag) {
+        if (tag == $api.dom('#footer li.active')) return;
+        var eFootLis = $api.domAll('#footer li'),
+            eHeaderLis = $api.domAll('header li'),
+            index = 0;
+        for (var i = 0, len = eFootLis.length; i < len; i++) {
+            if (tag == eFootLis[i]) {
+                index = i;
+            } else {
+                $api.removeCls(eFootLis[i], 'active');
+                $api.removeCls(eHeaderLis[i], 'active');
+            }
+        }
+        $api.addCls(eFootLis[index], 'active');
+        $api.addCls(eHeaderLis[index], 'active');
+        api.setFrameGroupIndex({
+            name: 'group',
+            index: index
+        });
+
+    }
+
+    $("#footer li").on('click', function() {
+        var index = $(this).index();
+        // alert(index);
+        if (index == 0) { //首页
+            api.execScript({
+                frameName: 'frame0',
+                script: 'window.queryAllList&&queryAllList()'
+            });
+        }
+        if (index == 1) { //消息
+            // api.execScript({
+            //     frameName: 'frame0',
+            //     script: 'queryAllList()'
+            // });
+        }
+        if (index == 2) { //个人中心
+            api.execScript({
+                frameName: 'frame2',
+                script: 'window.initMyCenter&&initMyCenter()'
+            });
+        }
+    });
+
+    function addMessageLi() {
+        $("#messageLi").addClass("xiaoxiLi");
+    }
+
+    function removeMessageLi() {
+        $("#messageLi").removeClass("xiaoxiLi");
+    }
+</script>

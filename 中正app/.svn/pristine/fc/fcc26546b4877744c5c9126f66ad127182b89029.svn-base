@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>注册页面</title>
+    <link rel="stylesheet" type="text/css" href="../../css/style.css" />
+    <link rel="stylesheet" type="text/css" href="../../css/publish.css" />
+    <style>
+        body {
+            background: #f4f4f4;
+        }
+        
+        .info-con-items2 {
+            margin: 0 20px;
+        }
+        
+        #delBtn {
+            height: 50px;
+            line-height: 50px;
+            position: absolute;
+            right: 0px;
+        }
+        
+        .step-box {
+            padding-bottom: 20px;
+            display: flex;
+            display: -webkit-flex;
+        }
+        
+        .step-box-tit {
+            height: 50px;
+            line-height: 50px;
+            font-size: 15px;
+            /* padding-left: 20px; */
+            width: 100%;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="info-wrap">
+        <div class="info-con">
+            <h3 class="info-title border-b">基本信息</h3>
+            <div class="info-con-items border-b">
+                <span>名称</span>
+                <div class="float-r">
+                    <input type="text" placeholder="最多16个字" id="rewardname">
+                </div>
+            </div>
+            <div class="info-con-items2 border-b">
+                <span>描述</span>
+                <textarea name="" id="reward_desc" rows="5" placeholder="最多40个字"></textarea>
+
+            </div>
+            <div class="info-con-items2 border-b">
+                <span>报名条件</span>
+                <textarea name="" id="apply_limit" rows="5" placeholder="选填(仅限用户，限制年限，城市等)"></textarea>
+            </div>
+            <div class="info-con-items border-b">
+                <span>支持设备</span>
+                <div class="float-r">
+                    <input type="text" placeholder="最多16个字" id="allowDevices" tapmode readonly value="不限设备类型"><i class="iconfont icon-youjiantou"></i>
+                </div>
+            </div>
+            <div class="info-con-items">
+                <span>审核悬赏周期</span>
+                <div class="float-r">
+                    <input type="text" id="audit_cycle" value="">天
+                </div>
+            </div>
+        </div>
+        <div class="info-con">
+            <h3 class="info-title border-b">悬赏限制设置</h3>
+            <div class="info-con-items border-b">
+                <span>悬赏关键词</span>
+                <div class="float-r">
+                    <input type="text" placeholder="填写APP全称" id="app_name">
+                </div>
+            </div>
+            <div class="info-con-items">
+                <span>再做一次？</span>
+                <div class="float-r">
+                    <input type="text" id="onceagain" readonly value="否"><i class="iconfont icon-youjiantou"></i>
+                </div>
+            </div>
+        </div>
+        <div class="info-con">
+            <h3 class="info-title border-b">设置步骤</h3>
+            <div class="info-con-upload-items" id="info-con-upload-items">
+                <!-- <div class="step-box" data-frm="open_download_frm" data-tit="打开/下载" data-id="step1">
+                    <div class="step-box-tit border-b"><span class="circle">1</span>打开/下载</div><span class="none" id="delBtn">删除</span>
+                </div>
+                <div class="step-box" data-frm="signin_login_frm" data-tit="注册/快捷登录">
+                    <div class="step-box-tit border-b"><span class="circle">2</span>注册/快捷登录<i class="float-r"><span class="none" id="delBtn">删除</span></i></div>
+                </div>
+                <div class="step-box" data-frm="add_step_frm" data-tit="添加步骤" id="addStep">
+                    <div class="step-box-tit border-b"><span class="circle">+</span>添加步骤<i class="float-r"></i></div>
+                </div>
+                <div class="step-box" data-frm="collect_info_frm" data-tit="收集指定信息">
+                    <div class="step-box-tit border-b"><span class="circle">3</span>收集指定信息<i class="iconfont icon-youjiantou float-r"></i></div> -->
+            </div>
+        </div>
+    </div>
+    <div class="info-con marb50">
+        <h3 class="info-title border-b">赏金设置</h3>
+        <div class="info-con-items border-b">
+            <span>悬赏单价</span>
+            <div class="float-r">
+                <input type="text" id="bounty" onkeyup="value=value.replace(/[^\d{1,}\.\d{1,}|\d{1,}]/g,'')" onchange="getPrepaid();">元/人
+            </div>
+        </div>
+        <div class="info-con-items border-b">
+            <span>总名额</span>
+            <div class="float-r">
+                <input type="text" id="countPlaces" placeholder="(最少10人)" onkeyup="value=value.replace(/[^\d]/g,'')" onchange="getPrepaid();">人
+            </div>
+        </div>
+        <div class="info-con-items border-b">
+            <span>截止日期</span>
+            <div class="float-r">
+                <input type="text" id="reward_end_time" placeholder="选择截止日期" readonly><i class="iconfont icon-youjiantou"></i>
+            </div>
+        </div>
+        <div class="info-con-items">
+            <span>预付赏金</span>
+            <div class="float-r">
+                <input type="text" id="preCoast">元
+            </div>
+        </div>
+    </div>
+    <div class="btn confirm-publish-btn" id="confirm-publish-btn">发布</div>
+    </div>
+</body>
+<script type="text/javascript" src="../../script/api.js"></script>
+<script type="text/javascript" src="../../script/libs/datePicker.js"></script>
+<script type="text/javascript" src="../../script/libs/zepto.js"></script>
+<script type="text/javascript" src="../../script/globalApp.js"></script>
+<script type="text/javascript" src="../../script/libs/touch.js"></script>
+
+<script type="text/javascript">
+    apiready = function() {
+        initStep();
+        api.addEventListener({
+            name: 'loadStorage'
+        }, function(ret, err) {
+            initStep();
+        });
+    };
+    //支持设备
+    $("#allowDevices").on('click', function() {
+        var UIMultiSelector = api.require('UIMultiSelector');
+        UIMultiSelector.open({
+            rect: {
+                h: 244
+            },
+            text: {
+                leftBtn: '取消',
+                rightBtn: '确认',
+                selectAll: '全选'
+            },
+            max: 0,
+            singleSelection: true, //参数值为 true 时，忽略参数 max，
+            styles: {
+                mask: 'rgba(0,0,0,0)',
+                title: {
+                    bg: '#f0f0f0'
+                },
+                leftButton: {
+                    w: 80,
+                    h: 35,
+                    marginT: 5,
+                    marginL: 8,
+                    color: '#666',
+                    bg: 'transparent',
+                    size: 14
+                },
+                rightButton: {
+                    w: 80,
+                    h: 35,
+                    marginT: 5,
+                    marginL: 8,
+                    color: '#1cbb9e',
+                    bg: 'transparent',
+                    size: 14
+                },
+                item: {
+                    h: 40,
+                    bg: '#fff',
+                    bgActive: '#fff',
+                    bgHighlight: '#fff',
+                    color: '#666',
+                    active: '#1cbb9e',
+                    highlight: '#1cbb9e',
+                    size: 14,
+                    lineColor: '#ddd',
+                    textAlign: 'center',
+                },
+                icon: {
+                    w: 0,
+                    marginH: 0,
+                }
+            },
+            animation: true,
+            items: [{
+                id: '1',
+                text: '苹果',
+                status: 'selected'
+            }, {
+                id: '2',
+                text: '安卓',
+                status: 'normal'
+            }, {
+                id: '3',
+                text: '其他',
+                status: 'normal'
+            }]
+        }, function(ret, err) {
+            if (ret) {
+                if (ret.eventType == "clickLeft") { //点击了取消
+                    UIMultiSelector.close();
+                }
+                if (ret.eventType == "clickRight") { //点击了确定
+                    condition = ret.items[0].id;
+                    text = ret.items[0].text;
+
+                    $("#allowDevices").val(text)
+                    UIMultiSelector.close();
+                }
+            } else {
+                console.log(JSON.stringify(err));
+            }
+        });
+    });
+
+
+    //是否再做一次
+    $("#onceagain").on('click', function() {
+        api.confirm({
+            title: '再做一次？',
+            buttons: ['是', '否']
+        }, function(ret, err) {
+            var index = ret.buttonIndex;
+            if (index == 1) {
+                $("#onceagain").val('是')
+            } else {
+                $("#onceagain").val('否')
+            }
+        });
+    })
+
+
+    //发布
+    $("#confirm-publish-btn").on('click', function() {
+        var onceagain = $api.byId("onceagain").value;
+        if (onceagain == '是') {
+            onceagain = '1';
+        } else {
+            onceagain = '0';
+        }
+        var params = {
+            rewardId: $api.getStorage("rewardId"),
+            rewardPersonId: $api.getStorage("userId"),
+            rewardName: $api.byId("rewardname").value,
+            resource: api.pageParam.id,
+            rewardDesc: $api.byId("reward_desc").value,
+            applyLimit: $api.byId("apply_limit").value,
+            allowDevices: $api.byId("allowDevices").value,
+            auditCycle: $api.byId("audit_cycle").value,
+            appName: $api.byId("app_name").value,
+            onceagain: onceagain,
+            unitPrice: $api.byId("bounty").value,
+            countPlaces: $api.byId("countPlaces").value,
+            rewardEndTime: $api.byId("reward_end_time").value,
+            preCoast: $api.byId("preCoast").value,
+        };
+
+        publicHighPriceReward();
+
+        function publicHighPriceReward() {
+            api.ajax({
+                url: globalData.baseUrl + globalData.publicHighPriceReward,
+                method: 'POST',
+                data: {
+                    values: params,
+                }
+            }, function(ret, err) {
+                if (ret && ret.status == 'success') {
+                    api.toast({
+                        msg: '提交成功！',
+                        location: 'bottom'
+                    });
+                    var stepCache = $api.getStorage("stepCache");
+                    var stepCacheArray = stepCache.split(",");
+                    var sKey = '';
+                    for (var i = 0; i < stepCacheArray.length; i++) {
+                        sKey = stepCacheArray[i];
+                        if (sKey != undefined) {
+                            $api.rmStorage(sKey);
+                        }
+                    }
+                    $api.rmStorage("stepCache");
+                    api.openWin({
+                        name: 'publish_result_win',
+                        url: './publish_result_win.html',
+                        bounces: false,
+                        pageParam: {
+                            key: 'value'
+                        },
+                        slidBackEnabled: false,
+                    });
+                } else {
+                    api.toast({
+                        msg: '提交失败！',
+                        location: 'bottom'
+                    });
+                }
+            });
+        }
+    });
+
+    function initStep() {
+        var stepContent = $api.getStorage("stepContent");
+        var stepCache = $api.getStorage("stepCache");
+        var stepContentArray = stepContent.split(",");
+        var content = "";
+        var dataFrm = '';
+        var dataId = '';
+        var stepName = '';
+        var n = 0;
+        var m = 0;
+        for (var i = 0; i < stepContentArray.length; i++) {
+            m = i + 1;
+            stepName = stepContentArray[i];
+            switch (stepName) {
+                case '添加步骤':
+                    dataFrm = 'add_step_frm';
+                    break;
+                case '收集指定信息':
+                    dataFrm = 'collect_info_frm';
+                    break;
+                case '图文信息':
+                    dataFrm = 'add_step_frm';
+                    break;
+                case '输入网址':
+                    dataFrm = 'add_step_frm';
+                    break;
+                case '上传二维码':
+                    dataFrm = 'add_step_frm';
+                    break;
+                case '收集截图':
+                    dataFrm = 'add_step_frm';
+                    break;
+                case '收集手机号':
+                    dataFrm = 'add_step_frm';
+                    break;
+                case '收集其它信息':
+                    dataFrm = 'add_step_frm';
+                    break;
+            }
+            content += '<div class="step-box" data-frm="' + dataFrm + '" data-tit="' + stepName + '" data-id="step' + m + '"> ';
+            content += '<div class="step-box-tit border-b">';
+            if (stepName != '收集指定信息') {
+                n = i + 1;
+                if (stepName == '添加步骤') {
+                    content += '<span class="circle">+</span>' + stepName;
+                } else {
+                    content += '<span class="circle">' + n + '</span><span>' + stepName + '</span><span class="none" id="delBtn">删除</span>';
+                }
+            } else {
+                n = i;
+                if (stepName == '添加步骤') {
+                    content += '<span class="circle">+</span>' + stepName;
+                } else {
+                    content += '<span class="circle">' + n + '</span><span>' + stepName + '</span><span class="none" id="delBtn">删除</span>';
+                }
+            }
+            if (stepName != '添加步骤' && stepName != '收集指定信息') {
+                content += '</div>';
+            } else {
+                content += '</div>';
+            }
+
+            content += '</div>';
+        }
+        $('.info-con-upload-items').html(content);
+        console.log(content)
+
+//      $(".step-box").swipeLeft(function() {
+//          console.log('左滑')
+//          $(this).find('.none').show();
+//          if ($(this).find('.none')) {
+//              $('.none').on('click', function(e) {
+//                 var rName = $(this).prev().text();
+//                 var con = '';
+//                 for(var i = 0; i < stepContentArray.length;i++){
+//                    if(stepContentArray[i] != rName){
+//                       con += stepContentArray[i] + ',';
+//                      }
+//                 }
+//                  con = con.substring(0, con.lastIndexOf(','));
+//                  var stepCache = $api.getStorage("stepCache");
+//                  stepCache.substring(0, stepCache.lastIndexOf(','));
+//                  var array = stepCache.split(',');
+//                  var stepNo = $(this).parent().parent().data('id');
+//                  var step = '';
+//                  for(var i = 0; i < array.length;i++){
+//                     if(array[i] != stepNo && array[i] != ''){
+//                       step += array[i] + ',';
+//                     }else{ 
+//                      $api.rmStorage(array[i]);
+//                       alert('333')
+//                     }
+//                  }
+//                  alert('444'+step)
+//                  $api.setStorage("stepCache", step);
+//                  alert($api.getStorage('stepCache'));
+//                  $api.setStorage("stepContent", con);
+//                  e.stopPropagation();
+//                  //$(this).parent().remove();
+//                  initStep();
+//              })
+//          }
+//      });
+        $(".step-box").swipeRight(function() {
+            console.log('右滑')
+            $(this).find('.none').hide()
+
+        });
+
+    };
+
+    //添加步骤
+    $(".info-con").on("click", '.step-box-tit', function() {
+        // alert('dddd')
+        var frmurl = $(this).parent().data('frm'); //获取改节点上对应的内容和所要跳转的frame
+        var tit = $(this).parent().data('tit');
+        var pageId = $(this).parent().data('id');
+        console.log(frmurl);
+         console.log(tit);
+          console.log(pageId);
+        api.openWin({
+            name: 'step_win',
+            url: '../step/step_win.html',
+            bounces: false,
+            pageParam: {
+                frmurl: frmurl,
+                tit: tit,
+                pageId: pageId
+            },
+        });
+    });
+
+    function getPrepaid() {
+        var price = $api.byId("bounty").value;
+        var num = $api.byId("countPlaces").value;
+        if (price == '') {
+            price = 0;
+        }
+        if (num == '') {
+            num = 0;
+        }
+        var sum = price * num;
+        document.getElementById("preCoast").value = sum;
+    };
+</script>
+
+</html>

@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>审核失败原因</title>
+    <link rel="stylesheet" type="text/css" href="../../css/style.css" />
+    <link rel="stylesheet" type="text/css" href="../../css/publish.css" />
+    <style>
+        .info-con-items {
+            height: auto;
+            line-height: 1.5;
+            padding: 10px 0;
+        }
+
+        .info-con-items2 {
+            margin: 0 20px;
+        }
+
+        .img-upload {
+            margin-left: 0;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="info-wrap">
+
+
+    </div>
+</body>
+<script type="text/javascript" src="../../script/api.js"></script>
+<script type="text/javascript" src="../../script/globalApp.js"></script>
+<script type="text/javascript" src="../../script/libs/zepto.js"></script>
+<script type="text/javascript">
+
+    apiready = function() {
+        initFilePage();
+    };
+
+    function initFilePage(){
+       var pageParam = api.pageParam.pageParam;
+       var relId = pageParam.rid;
+        var params = {
+                relId: relId,
+            };
+         api.ajax({
+                url: globalData.baseUrl + globalData.getCheckResonByRelId,
+                method: 'GET',
+                data: {
+                    values: params,
+                }
+            }, function(ret, err) {
+              var tml = '';
+              if(ret){
+                 tml += `<div class="info-con"><div class="info-con-items2 border-b">
+                        <span>审核失败原因:</span><textarea name="" id="reward_desc" rows="5" placeholder="最多80个字" autofocus readonly="readonly">${ret.comment}</textarea>
+                        </div></div>`;
+                 if(ret.commentImg != ''){
+                     var imgUrl = globalData.imageUrl + ret.commentImg;
+                     tml += `<div class="info-con"><h3 class="info-title border-b">审核失败说明图</h3><div class="info-con-upload-items">
+                         <div class="step-box"><div class="img-box flex-wrap"><div class="img-upload">
+                         <span class="deleteimg"><i class="iconfont icon-guanbi"></i></span>
+                         <img src="${imgUrl}" alt="" id="verifyImg">
+                         </div></div></div></div></div>`
+                 }
+
+              //   tml += `<div class="btn confirm-publish-btn" id="confirm-submit-btn">提交</div>`;
+               $('.info-wrap').html(tml);
+              }
+//            api.openWin({
+//              name: 'rewardInfo_win',
+//              url: "check_fail_win.html",
+//              pageParam: {
+//                rewardId: obj,
+//                earnCount: ret.earnCount,
+//                residueCount: ret.residueCount
+//               },
+//             });
+            });
+    }
+
+</script>
+
+</html>

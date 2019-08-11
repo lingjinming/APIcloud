@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>简单悬赏</title>
+    <link rel="stylesheet" type="text/css" href="../../css/style.css" />
+    <style>
+
+    </style>
+</head>
+
+<body>
+    <header id="header" class="header">
+        <div class="back" tapmode onclick="closeWin()"></div>
+        <h1 id="title"></h1>
+    </header>
+</body>
+<script type="text/javascript" src="../../script/api.js"></script>
+<script type="text/javascript" src="../../script/libs/zepto.js"></script>
+
+<script type="text/javascript">
+    apiready = function() {
+        var header = $api.byId('header');
+        $api.fixStatusBar(header);
+        var headerH = $api.offset(header).h;
+        var pageParam = api.pageParam;
+        var con = pageParam.con;
+        var id = pageParam.id;
+        var frm_name = pageParam.frm_name;
+        var title = $api.byId("title"); //修改标题
+        $api.text(title, "发布" + con + "悬赏")
+            // 打开对应Frame
+        api.openFrame({
+            name: frm_name,
+            url: './' + frm_name + '.html',
+            rect: {
+                marginTop: headerH,
+                w: 'auto',
+                h: 'auto'
+            },
+            pageParam: {
+                con: con,
+                id: id
+            },
+            slidBackEnabled: false,
+            bounces: false,
+            softInputBarEnabled: false //不显示键盘上方的工具条
+        });
+
+    };
+    
+    function closeWin(){
+      var stepCache = $api.getStorage("stepCache");
+       if(stepCache != undefined){
+       var stepCacheArray = stepCache.split(",");
+                  var sKey = '';
+                    for(var i = 0; i < stepCacheArray.length; i++){
+                        sKey = stepCacheArray[i];
+                       if(sKey != undefined){
+                           $api.rmStorage(sKey);
+                        }
+                    }
+       }
+     $api.rmStorage("stepContent");
+     $api.rmStorage("stepCache");
+     api.closeWin();
+    }
+    
+    
+</script>
+
+</html>

@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>通知</title>
+    <!-- <link rel="stylesheet" type="text/css" href="../../css/style.css" /> -->
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        .none {
+            display: none
+        }
+
+        .noticeList {
+            margin: 20px 15px;
+            color: #737373;
+        }
+
+        .notice {
+            margin-bottom: 20px;
+            /* background: white; */
+            border-radius: 3px;
+            padding: 20px 15px;
+            box-shadow: 0 0 10px #e6e6e6;
+        }
+
+        .notivceTitle {
+            height: 30px;
+            line-height: 30px;
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+
+        .subNotivceTitle {
+            height: 25px;
+            line-height: 25px;
+            font-size: 14px;
+            color: #d0d0d0
+        }
+
+        .subNotivceTitle span:first-child {
+            float: left;
+            height: 100%;
+        }
+
+        .subNotivceTitle span:last-child {
+            float: right;
+            height: 100%;
+            position: relative;
+            margin-right: 20px
+        }
+
+        .subNotivceTitle span img {
+            width: 16px;
+            position: absolute;
+            top: 50%;
+            right: -20px;
+            transform: translateY(-50%);
+            transition: all .3s;
+        }
+
+        .noticeCon {
+            border-top: 1px solid #d0d0d0;
+            margin-top: 10px;
+        }
+
+        .imgBox {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-around;
+        }
+
+        .noticeCon p {
+            margin: 10px 0;
+        }
+
+        .imgBox img {
+            width: calc((100% - 15px));
+            height: 180px;
+            margin-right: 5px;
+            margin-bottom: 5px
+        }
+        .yzsp{
+          float: right;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="noticeList" id = "noticeList">
+
+    </div>
+</body>
+<script type="text/javascript" src="../../script/globalApp.js"></script>
+<script type="text/javascript" src="../../script/api.js"></script>
+<script type="text/javascript" src="../../script/libs/vue.js"></script>
+<script type="text/javascript" src="../../script/libs/zepto.js"></script>
+<script type="text/javascript" src="../../script/libs/touch.js"></script>
+
+<script type="text/javascript">
+    var showCon = true;
+    apiready = function() {
+    initPage();
+    api.setRefreshHeaderInfo({
+        visible: true,
+        bgColor: '#ccc',
+        textColor: '#666',
+        textDown: '下拉刷新...',
+        textUp: '松开刷新...',
+        showTime: true
+    }, function(ret, err) {
+        initPage();
+        api.refreshHeaderLoadDone();
+    });
+    }
+
+    function initPage(){
+      api.ajax({
+          url: globalData.baseUrl + globalData.getNoticeList,
+          method: 'get',
+      }, function(ret, err) {
+        $("#noticeList").empty();
+           var tml = ``;
+           if(ret){
+             var imgUrl = '';
+             for(var i = 0; i < ret.length; i++){
+               tml += `<div class="notice">
+                      <p class="notivceTitle">`+ret[i].headline+`</p>
+                         <p class="subNotivceTitle">
+                            <span>`+ret[i].createTime+`</span>
+                            <span onclick="downFun(this);" class="yzsp">展开</span><span class="yzsp"><img class="downImg" src="../../image/down.png" alt=""></span>
+                         </p>
+                     <div class="noticeCon none">
+                           <p>`+ret[i].noticeDesc+`</p>`;
+                    if(ret[i].attachPath != ''){
+                              imgUrl = globalData.imageUrl + ret[i].attachPath;
+                           tml +=  `<p>`+ret[i].imgDesc+`：</p>
+                           <div class="imgBox">
+                               <img src="`+imgUrl+`" alt="">
+                           </div>`;
+                     }
+                    tml += `</div></div>`;
+             }
+            $("#noticeList").append(tml);
+           }
+      });
+    }
+
+
+    function downFun(obj){
+      var m = $(obj).text();
+      if(m == '展开'){
+        $(obj).next().find('img').css('transform', 'translateY(-50%) rotate(180deg)');
+        $(obj).parent().next().removeClass('none');
+        $(obj).text('收起');
+      }else{
+        $(obj).next().find('img').css('transform', 'translateY(-50%) rotate(180deg)');
+        $(obj).parent().next().addClass('none');
+        $(obj).text('展开');
+      }
+    }
+</script>
+
+</html>

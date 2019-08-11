@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>提现记录</title>
+    <link rel="stylesheet" type="text/css" href="../css/style.css" />
+    <style>
+
+    </style>
+</head>
+
+<body>
+    <header id="header" class="header">
+        <div class="back" tapmode onclick="api.closeWin();"></div>
+        <h1>提现记录</h1>
+    </header>
+
+</body>
+<script type="text/javascript" src="../script/api.js"></script>
+<script type="text/javascript">
+    apiready = function() {
+        var header = $api.byId('header');
+        var headerH = $api.fixStatusBar(header);
+
+        api.openFrame({
+            name: 'record_frm',
+            url: './record_frm.html',
+            rect: {
+                marginTop: headerH,
+                w: 'auto',
+                h: 'auto'
+            },
+        });
+    };
+</script>
+
+</html>

@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>登录Frame</title>
+    <link rel="stylesheet" type="text/css" href="../css/style.css" />
+    <style>
+        body {
+            text-align: center;
+            background: url('../image/bg_login.png') no-repeat center;
+        }
+        
+        .row {
+            width: auto;
+            margin-left: 32px;
+            margin-right: 32px;
+            position: relative;
+            height: 40px;
+            line-height: 40px;
+            border-radius: 20px;
+            background: rgba(0, 0, 0, 0.5);
+            margin-bottom: 20px;
+        }
+        
+        .input {
+            width: 45%;
+            height: 30px;
+            line-height: 30px;
+            margin-top: 5px;
+            font-size: 14px;
+            background: transparent;
+            color: #fff;
+            float: left;
+        }
+        
+        .iconfont {
+            font-size: 20px;
+            color: #fff;
+            margin-left: 15px;
+            margin-right: 5px;
+            float: left;
+        }
+        
+        .border-radius {
+            width: calc(65% - 64px);
+            margin-left: 32px;
+            margin-right: 5%;
+            position: relative;
+            height: 40px;
+            line-height: 40px;
+            border-radius: 20px;
+            background: rgba(0, 0, 0, 0.5);
+            margin-bottom: 20px;
+        }
+        
+        .highlight {
+            opacity: 0.7;
+        }
+        
+        .btn {
+            position: relative;
+            height: 40px;
+            line-height: 40px;
+            border-radius: 20px;
+            background: #0090ff;
+            color: #fff;
+            font-size: 14px;
+            text-align: center;
+        }
+        
+        .fnLogin_btn,
+        .fnRegister_btn {
+            width: auto;
+            font-size: 16px;
+            margin: 0 32px;
+            margin-bottom: 20px;
+        }
+        
+        .forget {
+            height: 30px;
+            line-height: 30px;
+            text-align: right;
+            width: auto;
+            margin-bottom: 20px;
+            margin-left: 32px;
+            margin-right: 32px;
+            color: #fff;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- <img class="logoimg" src="../image/logo.png" alt=""> -->
+    <div class="row">
+        <i class="iconfont icon-yonghuming"></i><input id="username" class="input" type="text" placeholder="请输入手机号登录">
+    </div>
+    <div class="row">
+        <i class="iconfont icon-mima"></i><input id="password" class="input" type="password" placeholder="密码">
+    </div>
+    <div class="forget" onclick="fnOpenFindbackPass();">忘记密码？</div>
+    <div class="btn fnLogin_btn" tapmode="highlight" onclick="fnLogin();">登录</div>
+    <div class="btn fnRegister_btn" tapmode onclick="fnOpenRegisterWin();">注册</div>
+
+</body>
+<script type="text/javascript" src="../script/api.js"></script>
+<script type="text/javascript" src="../script/globalApp.js"></script>
+<script type="text/javascript" src="../script/sha1.min.js"></script>
+
+<script type="text/javascript">
+    var loginUrl = globalData.baseUrl + globalData.toLogin; //登录接口
+    var usernameUIInputId;
+    var passwordUIInputId;
+    var usernameValue;
+    var passwordValue;
+
+    // 登录
+    function fnLogin() {
+        $api.clearStorage();
+        var tel = $api.byId("username").value;
+
+        api.showProgress({
+            title: '登陆中',
+            modal: true
+        });
+        api.ajax({
+            url: loginUrl,
+            method: 'post',
+            headers: {
+                "X-APICloud-AppId": api.appId,
+                "X-APICloud-AppKey": 'D82E0BFD-6F5F-0313-CE4E-A2B09F9E9957'
+            },
+            data: {
+                values: {
+                    "loginname": tel,
+                    "password": $api.byId("password").value,
+                    "cid": api.deviceId
+                }
+            }
+        }, function(ret, err) {
+            // alert(JSON.stringify(ret))
+            if (ret) {
+                var flag = ret.loginflag;
+                if (flag == 1) {
+                    $api.setStorage('userName', ret.userInfo.userName);
+                    $api.setStorage('userId', ret.userInfo.id);
+                    $api.setStorage('tel', tel);
+                    $api.setStorage('menuInfo', JSON.stringify(ret.userInfo.menuList));
+                    $api.setStorage('token', ret.token);
+                    $api.setStorage('tx', ret.userInfo.headportrait);
+                    api.hideProgress();
+                    clearCache();
+                    api.openWin({
+                        name: 'rewardlist_win',
+                        url: './rewardlist_win.html',
+                        bounces: false,
+                        pageParam: {
+                            userInfo: ret
+                        }
+                    });
+                } else if (flag == 2) {
+                    api.hideProgress();
+
+                    api.toast({
+                        msg: '用户名或密码错误',
+                        location: 'bottom'
+                    });
+                    api.hideProgress();
+
+                } else if (flag == 3) {
+                    api.hideProgress();
+
+                    api.toast({
+                        msg: '用户名不存在',
+                        location: 'bottom'
+                    });
+                    api.hideProgress();
+
+                } else if (flag == 4) {
+                    api.hideProgress();
+
+                    api.toast({
+                        msg: '登录信息过期',
+                        location: 'bottom'
+                    });
+                    api.hideProgress();
+                }
+            } else {
+                api.toast({
+                    msg: '登录失败',
+                    duration: 2000,
+                    location: 'bottom'
+                });
+                api.hideProgress();
+            }
+        });
+    }
+
+    function loginToToken() {
+        //$api.clearStorage();
+        var token = $api.getStorage('token');
+        if (token != undefined) {
+            api.ajax({
+                url: loginUrl,
+                method: 'post',
+                headers: {
+                    "X-APICloud-AppId": api.appId,
+                    "X-APICloud-AppKey": 'D82E0BFD-6F5F-0313-CE4E-A2B09F9E9957'
+                },
+                data: {
+                    values: {
+                        "loginname": "",
+                        "password": "",
+                        "cid": "",
+                        "token": token
+                    }
+                }
+            }, function(ret, err) {
+                if (ret) {
+                    var flag = ret.loginflag;
+                    if (flag == 1) {
+                        $api.setStorage('userId', ret.userInfo.userId);
+                        $api.setStorage('userName', ret.userInfo.userName);
+                        $api.setStorage('tel', ret.userInfo.telephone);
+                        $api.setStorage('menuInfo', JSON.stringify(ret.userInfo.menuList));
+                        $api.setStorage('tx', ret.userInfo.headportrait);
+                        clearCache();
+                        api.openWin({
+                            name: 'rewardlist_win',
+                            url: './rewardlist_win.html',
+                            bounces: false,
+                            pageParam: {
+                                userInfo: ret
+                            }
+                        });
+                    } else if (flag == 4) {
+                        api.toast({
+                            msg: '登录信息过期',
+                            location: 'bottom'
+                        });
+                    }
+                } else {
+                    api.toast({
+                        msg: '登录失败',
+                        duration: 2000,
+                        location: 'bottom'
+                    });
+                    api.hideProgress();
+
+                }
+            });
+        }
+    }
+
+    apiready = function() {
+        setTimeout(function() {
+            loginToToken();
+        }, 500);
+        // api.getPhoneNumber(function(ret, err) {
+        //     var phoneNumber = ret.value;
+        // });
+        // alert(phoneNumber)
+    };
+
+
+
+    //找回密码
+    function fnOpenFindbackPass() {
+        api.openWin({
+            name: 'findbackpass_win',
+            url: './findbackpass_win.html',
+            bounces: false,
+            pageParam: {
+                key: 'value'
+            },
+            bounces: false,
+            vScrollBarEnabled: false
+        });
+    }
+
+    // 打开注册Window
+    function fnOpenRegisterWin() {
+        api.openWin({
+            name: 'registe_win',
+            url: './registe_win.html',
+            bounces: false
+
+        });
+    }
+
+    // 被注册页面调用，用于从注册页面传递用户名
+    function fnSetUsername(username_) {
+        $api.byId('username').val(username_)
+    }
+
+    function getRongToken() {
+        var userId = $api.getStorage("userId");
+        var name = $api.getStorage("userName");
+        var portraitUri = 'widget/image/add1.png';
+        var appKey = "pkfcgjstpzwa8";
+        var appSecret = "9HNrbQr2NE2Nf";
+        var nonce = Math.floor(Math.random() * 1000000);
+        //随机数
+        var timestamp = Date.now();
+        //时间戳
+        var signature = sha1("" + appSecret + nonce + timestamp);
+        api.ajax({
+            url: "http://api.cn.ronghub.com/user/getToken.json",
+            method: "post",
+            headers: {
+                "RC-App-Key": appKey,
+                "RC-Nonce": "" + nonce,
+                "RC-Timestamp": "" + timestamp,
+                "RC-Signature": "" + signature,
+                "Content-Type": "application/x-www-form-urlencoded"
+            },
+            data: {
+                values: {
+                    userId: userId,
+                    name: name,
+                    portraitUri: portraitUri
+                }
+            }
+        }, function(ret, err) {
+            if (ret) {
+
+                $api.setStorage('rongtoken', ret.token);
+
+            } else {
+                alert('err:' + JSON.stringify(err))
+
+            }
+        });
+    }
+
+
+    function clearCache() {
+        var stepCache = $api.getStorage("stepCache");
+        if (stepCache != undefined) {
+            var stepCacheArray = stepCache.split(",");
+            var sKey = '';
+            for (var i = 0; i < stepCacheArray.length; i++) {
+                sKey = stepCacheArray[i];
+                if (sKey != undefined) {
+                    $api.rmStorage(sKey);
+                }
+            }
+        }
+        $api.rmStorage("stepContent");
+        $api.rmStorage("stepCache");
+    }
+</script>
+
+</html>

@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>提现记录</title>
+    <link rel="stylesheet" type="text/css" href="../css/style.css" />
+    <link rel="stylesheet" type="text/css" href="../css/publish.css" />
+
+    <style>
+        header {
+            background: #fff;
+        }
+
+        #app {
+            height: 100vh;
+        }
+
+        .flex-wrap-tabs .on::after {
+            position: absolute;
+            content: '';
+            width: 80px;
+            height: 2px;
+            left: calc(50% - 40px);
+            bottom: 1px;
+            background: #1cbb9e;
+            z-index: 2;
+        }
+
+        .flex-con {
+            height: 40px;
+            line-height: 40px;
+            text-align: center;
+            position: relative;
+        }
+
+        .info-wrap {
+            padding-top: 10px
+        }
+    </style>
+</head>
+
+<body>
+    <div id="app">
+        <ul class="myrewardList" id="rewardList">
+
+        </ul>
+    </div>
+</body>
+<script type="text/javascript" src="../script/api.js"></script>
+<script type="text/javascript" src="../script/libs/vue.js"></script>
+<script type="text/javascript" src="../script/libs/zepto.js"></script>
+<script type="text/javascript" src="../script/globalApp.js"></script>
+
+<script type="text/javascript">
+    apiready = function() {
+          initPage();
+    }
+
+
+    function initPage(){
+      var userId = $api.getStorage('userId');
+      api.ajax({
+           url: globalData.baseUrl + globalData.getBananceRecord,
+           method: "get",
+           data: {
+               values: {
+                   "userId":userId,
+               }
+           }
+       }, function(ret, err) {
+         var recordList = ret.recordList;
+         var tml = '';
+         var bananceState = '';
+         for(var i = 0 ; i < recordList.length;i++){
+           bananceState = recordList[i].bananceState;
+           //
+              if(bananceState == '1'){
+                tml += `<li>
+                         <div class="info-wrap">
+                           <p> <span class="on">[`+recordList[i].bananceStateName+`]</span><span class="float-r orange-color">转账</span></p>
+                           <p>`+recordList[i].confirmTime+`<span class="float-r on">`+recordList[i].bananceAmount+`元</span></p>
+                         </div>
+                      </li>`;
+              }else if(bananceState == '0'){
+                tml += `<li>
+                         <div class="info-wrap">
+                           <p> <span class="red-color">[`+recordList[i].bananceStateName+`]</span><span class="float-r orange-color">提现申请</span></p>
+                           <p>`+recordList[i].confirmTime+`<span class="float-r on">`+recordList[i].bananceAmount+`元</span></p>
+                         </div>
+                       </li>`;
+              }else{
+                tml += `<li>
+                         <div class="info-wrap">
+                           <p> <span class="red-color">[`+recordList[i].bananceStateName+`]</span><span class="float-r orange-color">请检查账号或联系平台</span></p>
+                           <p>`+recordList[i].confirmTime+`<span class="float-r on">`+recordList[i].bananceAmount+`元</span></p>
+                         </div>
+                       </li>`;
+              }
+         }
+             $("#rewardList").append(tml);
+       });
+    }
+</script>
+
+</html>

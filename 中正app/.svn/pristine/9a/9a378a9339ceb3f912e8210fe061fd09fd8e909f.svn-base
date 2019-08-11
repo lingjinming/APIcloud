@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>管理赏单</title>
+    <link rel="stylesheet" type="text/css" href="../../css/style.css" />
+    <link rel="stylesheet" type="text/css" href="../../css/publish.css" />
+
+    <style>
+        #app {
+            height: 100vh;
+        }
+
+        .flex-con {
+            height: 40px;
+            line-height: 40px;
+            text-align: center;
+            position: relative;
+        }
+
+        .info-wrap {
+            padding-top: 10px
+        }
+
+        button.red-color {
+            color: #f30b0b !important;
+            border: 1px solid #f30b0b !important
+        }
+    </style>
+</head>
+
+<body>
+    <div id="app">
+        <ul class="myrewardList">
+
+
+        </ul>
+    </div>
+</body>
+<script type="text/javascript" src="../../script/api.js"></script>
+<script type="text/javascript" src="../../script/libs/vue.js"></script>
+<script type="text/javascript" src="../../script/libs/zepto.js"></script>
+<script type="text/javascript" src="../../script/globalApp.js"></script>
+
+<script type="text/javascript">
+    apiready = function() {
+        initList();
+        api.addEventListener({
+            name: 'initCheckPage'
+        }, function(ret, err){
+            initList();
+        });
+    }
+
+    function initList() {
+       var userId = $api.getStorage('userId');
+        api.showProgress({
+            title: '',
+            text: '加载中...',
+            modal: true
+        });
+        api.ajax({
+            url: globalData.baseUrl + globalData.getCheckList,
+            data:{
+              values: {
+                  "userId": userId,
+              }
+            },
+            method: 'GET',
+        }, function(ret, err) {
+            //<span style="margin-left: 5px" class="orange-color">102</span>人浏览</span>
+            if (ret) {
+                var tml = '';
+                var rid = '';
+                var residueTime = '';
+                var isShelves = '';
+                for (var i = 0; i < ret.length; i++) {
+                    isShelves = ret[i].isShelves;
+                    residueTime = ret[i].residueTime;
+                    if (residueTime == '1') {
+                        residueTime = '已截止';
+                    }
+                    rid = ret[i].id;
+                    tml += '<li><div class="info-wrap border-b"><p><span class="on">[' + ret[i].rState + ']</span> ' + ret[i].rewardName + '</p>';
+                    tml += '<p>剩<span class="red-color">' + ret[i].residueCount + '</span>个';
+                    tml += '<span class="float-r coloradadad">' + ret[i].residueTime + '</span></p></div>';
+                    tml += '<div class="btn-wrap"><button class="btn orange-color js-checkbtn" onclick=checkBtn("' + rid + '");>审核 '+ret[i].checkCount+'</button>';
+                    tml += '<button class="btn js-add-num" onclick=addBtn("' + rid + '");>增加名额</button><button class="btn red-color" onclick=reduceBtn("' + rid + '","' + isShelves + '");>' + isShelves + '</button></div></li>';
+                }
+                var timer = setTimeout(function() {
+                    $('.myrewardList').html(tml);
+                    api.hideProgress();
+                    clearTimeout(timer)
+                }, 500)
+            }
+        });
+    }
+
+
+    function checkBtn(obj) {
+        $api.setStorage('pageNo', '0');
+        api.openWin({
+            name: 'check_win',
+            url: '../check_win.html',
+            bounces: false,
+            pageParam: {
+                rewardId: obj
+            },
+        });
+    }
+
+
+
+    function addBtn(obj) {
+        api.prompt({
+            buttons: ['确定', '取消']
+        }, function(ret, err) {
+            var index = ret.buttonIndex;
+            var text = ret.text;
+            if (index == '1') { //确定
+                var params = {
+                    rewardId: obj,
+                    num: text
+                };
+                api.ajax({
+                    url: globalData.baseUrl + globalData.addPlaces,
+                    method: 'post',
+                    data: {
+                        values: params,
+                    }
+                }, function(ret, err) {
+                    if (ret.status == 'success') {
+                        initList();
+                        api.toast({
+                            msg: '操作成功',
+                            location: 'bottom'
+                        });
+                    } else {
+                        api.toast({
+                            msg: '操作失败',
+                            location: 'bottom'
+                        });
+                    }
+                });
+
+            }
+        });
+    }
+
+    function reduceBtn(obj, isShelves) {
+        var type = '';
+        if (isShelves == '上架') {
+            type = '1'; //上架
+        } else {
+            type = '2'; //下架
+        }
+        var params = {
+            rewardId: obj,
+            type: type,
+        };
+        api.ajax({
+            url: globalData.baseUrl + globalData.reduceOrder,
+            method: 'post',
+            data: {
+                values: params,
+            }
+        }, function(ret, err) {
+            if (ret.status == 'success') {
+                initList();
+                api.toast({
+                    msg: '操作成功',
+                    location: 'bottom'
+                });
+            } else {
+                api.toast({
+                    msg: '操作失败',
+                    location: 'bottom'
+                });
+            }
+        });
+    }
+
+    $("#tabs").on('click', 'div', function() {
+        var innerText = this.innerText;
+        var type = $(this).data('type');
+        if (type == 0) {
+            rewardType = '';
+        } else {
+            rewardType = type;
+        }
+        itemArray = [];
+        rewardAttribute = '';
+
+        console.log(type + " " + innerText);
+        $(this).addClass("on").siblings().removeClass("on")
+
+    });
+</script>
+
+</html>

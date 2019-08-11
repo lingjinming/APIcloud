@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>添加步骤</title>
+    <link rel="stylesheet" type="text/css" href="../../css/style.css" />
+    <link rel="stylesheet" type="text/css" href="../../css/publish.css" />
+    <style>
+        .info-con-items2 {
+            margin: 0 20px;
+        }
+
+        .dropdownbox {
+            background: #fff;
+            margin-bottom: 10px;
+            position: relative;
+        }
+
+        .dropdownbox ul {
+            display: none;
+            position: absolute;
+            top: 40px;
+            width: 100%;
+            z-index: 2;
+            box-shadow: 0 1px 10px 0 #ddd;
+        }
+
+        .dropdownbox p,
+        .dropdownbox li {
+            height: 40px;
+            line-height: 40px;
+            text-align: center;
+            background: #ffffff;
+        }
+
+        .dropdownbox li {
+            border-bottom: 1px solid #ddd;
+        }
+
+        .dropdownbox li:last-child {
+            border-bottom: none
+        }
+
+        .dropdownbox i {
+            margin-left: 10px;
+            transition: all .3s
+        }
+
+        .info-con {
+            display: none
+        }
+
+        .h40 {
+            height: 40px;
+            line-height: 40px;
+            margin-bottom: 10px;
+            margin-top: 10px;
+            padding: 0 20px
+        }
+
+        .h40 div {
+            display: inline-block;
+            width: calc(100% - 70px);
+        }
+
+        .h40 input {
+            width: 100%
+        }
+
+        .info-con3,
+        .info-con4 {
+            padding: 10px 0;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="info-wrap">
+        <div class="dropdownbox">
+            <p id="chooseStep" tapmode>
+                <span id='tit'>请选择步骤</span><i class="iconfont icon-xiala"></i>
+            </p>
+            <ul id="stepItem">
+                <li data-tit=info-con1>图文信息</li>
+                <li data-tit=info-con2>输入网址</li>
+                <li data-tit=info-con3>上传二维码</li>
+                <li data-tit=info-con4>收集截图</li>
+                <li data-tit=info-con5>收集手机号</li>
+                <li data-tit=info-con6>收集其它信息</li>
+            </ul>
+        </div>
+        <div id="cons">
+            <div class="info-con info-con1">
+                <div class="info-con-items2 border-b">
+                    <span>步骤说明:</span>
+                    <textarea name="" id="reward_desc1" rows="5" placeholder="告诉悬赏人操作应该如何操作以及注意事项，最多80个字" autofocus></textarea>
+                </div>
+                <div class="info-con-upload-items">
+                    <div class="step-box">
+                        <div class="step-box-tit">上传步骤截图</div>
+                        <div class="img-box flex-wrap">
+                            <div class="img-upload" onclick="showAction('imgCodeUp1');">
+                                <span class="deleteimg"><i class="iconfont icon-guanbi"></i></span>
+                                <img src="../../image/icon_upload.png" alt="" id="imgCodeUp1">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="info-con info-con2">
+             <div class="info-con-items2 border-b">
+                    <span>步骤说明:</span>
+                    <textarea name="" id="reward_desc2" rows="5" placeholder="告诉悬赏人操作应该如何操作以及注意事项，最多80个字" autofocus></textarea>
+                </div>
+                <div class="h40">
+                    <span>填写网址</span>
+                    <div class="float-r">
+                        <input type="text" id="the_url" placeholder="请以http://或https://开头">
+                    </div>
+                </div>
+            </div>
+            <div class="info-con info-con3">
+             <div class="info-con-items2 border-b">
+                    <span>步骤说明:</span>
+                    <textarea name="" id="reward_desc3" rows="5" placeholder="告诉悬赏人操作应该如何操作以及注意事项，最多80个字" autofocus></textarea>
+                </div>
+                <div class="img-box flex-wrap">
+                    <div class="img-upload" onclick="showAction('imgUpload2');">
+                        <span class="deleteimg"><i class="iconfont icon-guanbi"></i></span>
+                        <img src="../../image/icon_upload.png" alt="" id="imgUpload2">
+                    </div>
+                </div>
+            </div>
+            <div class="info-con info-con4">
+             <div class="info-con-items2 border-b">
+                    <span>步骤说明:</span>
+                    <textarea name="" id="reward_desc4" rows="5" placeholder="告诉悬赏人操作应该如何操作以及注意事项，最多80个字" autofocus></textarea>
+                </div>
+                <div class="img-box flex-wrap">
+                    <div class="img-upload" onclick="showAction('imgUpload3');">
+                        <span class="deleteimg"><i class="iconfont icon-guanbi"></i></span>
+                        <img src="../../image/icon_upload.png" alt="" id="imgUpload3">
+                    </div>
+                </div>
+            </div>
+            <div class="info-con info-con5">
+
+            </div>
+            <div class="info-con info-con6">
+                <div class="info-con-items2">
+                    <span style="width: 120px">收集其它信息:</span>
+                    <input name="" id="content" rows="5" placeholder="最多40个字" autofocus>
+                </div>
+            </div>
+        </div>
+
+        <div class="btn confirm-publish-btn" id="confirm-publish-btn">提交</div>
+    </div>
+</body>
+<script type="text/javascript" src="../../script/api.js"></script>
+<script type="text/javascript" src="../../script/libs/zepto.js"></script>
+<script type="text/javascript" src="../../script/globalApp.js"></script>
+
+<script type="text/javascript">
+    var tit = '';
+    var txt = '';
+    var attribute = '';
+    var base64Str = '';
+    var theUrl = '';
+    var stepType = '';
+    var fileList = [];
+    $(function() {
+        apiready = function() {
+            initPage();
+            // var pageParam = api.pageParam;
+            // alert(pageParam.con)
+            // console.log(pageParam)
+        };
+        $('#chooseStep').on('click', function() {
+            $("#stepItem").toggle();
+        });
+        $("#stepItem").on('click', 'li', function() {
+            txt = $(this).text();
+            tit = $(this).data('tit');
+            $('.' + tit).show().siblings().hide();
+            $('#chooseStep').addClass('on');
+            $("#tit").text(txt);
+            $("#stepItem").hide(500);
+        });
+
+        $("#confirm-publish-btn").on('click', function() {
+            var pageId = api.pageParam.pageId;
+            var rewardStepId = $api.getStorage(pageId);
+            var stepContent = $api.getStorage("stepContent");
+            var rewardDesc = '';
+
+            switch (tit) {
+                case 'info-con1':
+                    stepContent += ',' + '图文信息';
+                    rewardDesc = $api.byId("reward_desc1").value;
+                    stepType = '2';
+                    attribute = '1';
+                    if(rewardDesc == ''){
+                      api.toast({
+                        msg: '请输入步骤说明',
+                        duration: 500,
+                        location: 'middle'
+                       });
+                       return false;
+                    }
+                    break;
+                case 'info-con2':
+                    stepContent += ',' + '输入网址';
+                    rewardDesc = $api.byId("reward_desc2").value;
+                    theUrl = $api.byId("the_url").value;
+                    stepType = '2';
+                    attribute = '1';
+                    if(rewardDesc == ''){
+                      api.toast({
+                        msg: '请输入步骤说明',
+                        duration: 500,
+                        location: 'middle'
+                       });
+                       return false;
+                    }
+                      if(theUrl == ''){
+                       api.toast({
+                        msg: '请输入网址',
+                        duration: 500,
+                        location: 'middle'
+                       });
+                       return false;
+                      }
+                    break;
+                case 'info-con3':
+                    stepContent += ',' + '上传二维码';
+                    rewardDesc = $api.byId("reward_desc3").value;
+                    stepType = '2';
+                    attribute = '0';
+                    if(rewardDesc == ''){
+                      api.toast({
+                        msg: '请输入步骤说明',
+                        duration: 500,
+                        location: 'middle'
+                       });
+                       return false;
+                    }
+                    if(fileList.length == 0){
+                     api.toast({
+                        msg: '请上传二维码',
+                        duration: 500,
+                        location: 'middle'
+                       });
+                       return false;
+                    }
+                    break;
+                case 'info-con4':
+                   stepContent += ',' + '收集截图';
+                   rewardDesc = $api.byId("reward_desc4").value;
+                   stepType = '2';
+                    attribute = '2';
+                   if(rewardDesc == ''){
+                      api.toast({
+                        msg: '请输入步骤说明',
+                        duration: 500,
+                        location: 'middle'
+                       });
+                       return false;
+                    }
+                     if(fileList.length == 0){
+                     api.toast({
+                        msg: '请上传步骤截图',
+                        duration: 500,
+                        location: 'middle'
+                       });
+                       return false;
+                    }
+                    break;
+                case 'info-con5':
+                    stepContent += ',' + '收集手机号';
+                    rewardDesc = '请填写手机号';
+                     stepType = '1';
+                     attribute = '1';
+                    break;
+                case 'info-con6':
+                    stepType = '1';
+                    stepContent += ',' + '收集其它信息';
+                    rewardDesc = $api.byId("content").value;
+                     attribute = '1';
+                     if(rewardDesc == ''){
+                     api.toast({
+                        msg: '请填写信息',
+                        duration: 500,
+                        location: 'middle'
+                       });
+                       return false;
+                    }
+                    break;
+            }
+            var params = {
+                stepType:stepType,
+                showType: '2',
+                attribute:attribute,
+                rewardPersonId: $api.getStorage("userId"),
+                rewardDesc: rewardDesc,
+                rewardId: $api.getStorage("rewardId"),
+                rewardStepId: rewardStepId,
+                theUrl: theUrl,
+                pageId: pageId,
+                tit:tit,
+                base64Str:base64Str,
+            };
+
+            api.ajax({
+                url: globalData.baseUrl + globalData.addRewardStep,
+                method: 'post',
+                data: {
+                    values: params,
+                }
+            }, function(ret, err) {
+                if (ret) {
+
+
+                   if(ret.stepId != $api.getStorage(pageId)){
+                      loadStorage(stepContent);
+                   }else{
+                      api.sendEvent({
+                         name: 'loadStorage',
+                         extra: {
+                         msg: '初始化'
+                         }
+                        });
+                      api.closeWin();
+                   }
+
+                    $api.setStorage(pageId, ret.stepId);
+                    var stepCache = $api.getStorage("stepCache");
+                     if(stepCache == undefined){
+                         stepCache = '';
+                       }
+
+                      var array = stepCache.split(',');
+                      var flag = true;
+                      for(var i = 0; i < array.length; i++){
+                         if(array[i] == pageId){
+                         flag = false;
+                         }
+                      }
+                      if(flag){
+                       stepCache += pageId + ",";
+                      }
+                    $api.setStorage("stepCache",stepCache);
+                    fileList = [];
+                    api.toast({
+                        msg: '提交成功',
+                        duration: 500,
+                        location: 'middle'
+                    });
+                } else {
+                    api.toast({
+                        msg: '提交失败',
+                        duration: 2000,
+                        location: 'middle'
+                    });
+
+                }
+            });
+
+        });
+    })
+
+    function loadStorage(param){
+    var paramArray = param.split(",");
+    var params = '';
+    for(var i = 0; i < paramArray.length; i++){
+       if(paramArray[i] != '添加步骤' && paramArray[i] != '收集指定信息'){
+               params += paramArray[i] + ',';
+       }
+    }
+     params += '添加步骤';
+     params += ',收集指定信息';
+
+      $api.setStorage("stepContent", params);
+               api.sendEvent({
+                       name: 'loadStorage',
+                       extra: {
+                       msg: '初始化'
+                      }
+                     });
+                     api.closeWin();
+    }
+
+    function showAction(params) {
+        api.actionSheet({
+            title: '上传图片',
+            cancelTitle: '取消',
+            buttons: ['拍照', '从手机相册选择']
+        }, function(ret, err) {
+            if (ret) {
+                getPicture(ret.buttonIndex, params);
+            }
+        });
+    }
+
+    function getPicture(sourceType, typeId) {
+        if (sourceType == 1) { // 拍照
+            api.getPicture({
+                sourceType: 'camera',
+                encodingType: 'jpg',
+                mediaValue: 'pic',
+                allowEdit: false,
+                destinationType: 'base64',
+                quality: 90,
+                saveToPhotoAlbum: true
+            }, function(ret, err) {
+                if (ret) {
+                    $('#' + typeId).attr('src', ret.base64Data);
+                    base64Str = ret.base64Data;
+                    var tempData = ret.data;
+                    var res = tempData.split('/');
+                    if (tempData == "") return
+                    if (fileList.length > 0) {
+                        fileList = [];
+                    }
+                    fileList.push(tempData);
+                } else {
+                    alert(JSON.stringify(err));
+                }
+            });
+        } else if (sourceType == 2) { // 从相机中选择
+            api.getPicture({
+                sourceType: 'library',
+                encodingType: 'jpg',
+                mediaValue: 'pic',
+                destinationType: 'base64',
+                quality: 50,
+                targetWidth: 750,
+                targetHeight: 750
+            }, function(ret, err) {
+                if (ret) {
+                    $('#' + typeId).attr('src', ret.base64Data);
+                    base64Str = ret.base64Data;
+                    var tempData = ret.data;
+                    if (tempData == '') {
+                        return
+                    }
+                    if (fileList.length > 0) {
+                        fileList = [];
+                    }
+                    fileList.push(tempData);
+                } else {
+                    alert(JSON.stringify(err));
+                }
+            });
+        }
+    }
+
+    function initPage(){
+      var pageId = api.pageParam.pageId;
+      var stepId = $api.getStorage(pageId);
+       var params = {
+             stepId:stepId
+            };
+        api.ajax({
+                url: globalData.baseUrl + globalData.getStepDetailById,
+                method: 'get',
+                data: {
+                    values: params,
+                }
+            }, function(ret, err) {
+               if(ret.status == '1'){
+                  var tit1 = ret.tit;
+                switch(tit1){
+                  case 'info-con1':
+                   attribute = '2';
+                   stepType = '2';
+                   $('.' + tit1).show().siblings().hide();
+                   $('#chooseStep').addClass('on');
+                   $("#tit").text('图文信息');
+                   $("#stepItem").hide(500);
+                   tit = 'info-con1';
+                  $api.byId("reward_desc1").value=ret.stepsName;
+                  var element = document.getElementById('imgCodeUp1');
+                  element.src = globalData.imageUrl+ret.attachId;
+                  base64Str = ret.attachId;
+                  break;
+                  case 'info-con2':
+                  attribute = '1';
+                  stepType = '1';
+                  $('.' + tit1).show().siblings().hide();
+                  $('#chooseStep').addClass('on');
+                  $("#tit").text('输入网址');
+                  $("#stepItem").hide(500);
+                  tit = 'info-con2';
+                  $api.byId("reward_desc2").value=ret.stepsName;
+                  $api.byId("the_url").value=ret.theurl;
+                  theUrl = ret.theurl;
+                  break;
+                  case 'info-con3':
+                  stepType = '1';
+                  attribute = '0';
+                   $('.' + tit1).show().siblings().hide();
+                  $('#chooseStep').addClass('on');
+                  $("#tit").text('上传二维码');
+                  $("#stepItem").hide(500);
+                  tit = 'info-con3';
+                  $api.byId("reward_desc3").value=ret.stepsName;
+                  var element = document.getElementById('imgUpload2');
+                  element.src = globalData.imageUrl+ret.attachId;
+                  base64Str = ret.attachId;
+                  break;
+                  case 'info-con4':
+                  stepType = '2';
+                  attribute = '2';
+                  $('.' + tit1).show().siblings().hide();
+                  $('#chooseStep').addClass('on');
+                  $("#tit").text('收集截图');
+                  $("#stepItem").hide(500);
+                  tit = 'info-con4';
+                  $api.byId("reward_desc4").value=ret.stepsName;
+                  var element = document.getElementById('imgUpload3');
+                  element.src = globalData.imageUrl+ret.attachId;
+                  base64Str = ret.attachId;
+                  break;
+                  case 'info-con5':
+                  stepType = '1';
+                  attribute = '1';
+                  $('.' + tit1).show().siblings().hide();
+                  $('#chooseStep').addClass('on');
+                  $("#tit").text('收集手机号');
+                  $("#stepItem").hide(500);
+                  tit = 'info-con5';
+                  break;
+                  case 'info-con6':
+                  attribute = '1';
+                  $('.' + tit1).show().siblings().hide();
+                  $('#chooseStep').addClass('on');
+                  $("#tit").text('收集其它信息');
+                  $("#stepItem").hide(500);
+                  tit = 'info-con6';
+                  var element = document.getElementById('content');
+                  element.value = ret.stepsName;
+                  break;
+                }
+
+               }
+            });
+           }
+</script>
+
+</html>

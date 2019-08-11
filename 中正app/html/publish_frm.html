@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>发布类型</title>
+    <link rel="stylesheet" type="text/css" href="../css/style.css" />
+    <style>
+        .publish-wrap {
+            background: #f4f4f4;
+            height: 100vh;
+            width: 100%;
+        }
+        
+        .publish-con h3 {
+            height: 50px;
+            line-height: 50px;
+            font-size: 18px;
+            padding-left: 20px;
+            color: #333;
+        }
+        
+        .flex-wrap {
+            flex-wrap: wrap;
+            flex-wrap: -webkit-wrap;
+        }
+        
+        .flex25 {
+            width: 25%;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .publish-con {
+            margin-bottom: 20px;
+            background: #ffffff;
+        }
+        
+        .publish-con li {
+            text-align: center;
+        }
+        
+        .publish-con img {
+            max-width: 100%;
+            width: 50px;
+            margin-bottom: 5px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="publish-wrap">
+        <div class="publish-con">
+            <h3>简单悬赏</h3>
+            <div class="flex-wrap">
+                <div class="flex25"><img data-type='关注' src="../image/icon_focus.png" alt="">
+                    <p data-frmname="simple_frm_focus" id="1">关注</p>
+                </div>
+                <div class="flex25"><img data-type='投票' src="../image/icon_vote.png" alt="">
+                    <p data-frmname="simple_frm_vote" id="2">投票</p>
+                </div>
+                <div class="flex25"><img data-type='转发' src="../image/icon_transpond.png" alt="">
+                    <p data-frmname="simple_frm_trans" id="3">转发</p>
+                </div>
+                <div class="flex25"><img data-type='下载' src="../image/icon_download.png" alt="">
+                    <p data-frmname="simple_frm_signin" id="4">下载</p>
+                </div>
+                <div class="flex25"><img data-type='激活' src="../image/icon_active.png" alt="">
+                    <p data-frmname="simple_frm_signin" id="5">激活</p>
+                </div>
+                <div class="flex25"><img data-type='注册' src="../image/icon_signin.png" alt="">
+                    <p data-frmname="simple_frm_signin" id="6">注册</p>
+                </div>
+            </div>
+        </div>
+        <div class="publish-con">
+            <h3>高价悬赏</h3>
+            <ul class="flex-wrap">
+                <div class="flex25"><img data-type='实名' src="../image/icon_realname.png" alt="">
+                    <p data-frmname="simple_frm_signin" id="7">实名</p>
+                </div>
+                <div class="flex25"><img data-type='绑卡' src="../image/icon_bindcard.png" alt="">
+                    <p data-frmname="simple_frm_signin" id="8">绑卡</p>
+                </div>
+                <div class="flex25"><img data-type='开户' src="../image/icon_openac.png" alt="">
+                    <p data-frmname="simple_frm_signin" id="9">开户</p>
+                </div>
+                <div class="flex25"><img data-type='投资' src="../image/icon_invest.png" alt="">
+                    <p data-frmname="simple_frm_signin" id="10">投资</p>
+                </div>
+            </ul>
+        </div>
+    </div>
+
+
+</body>
+<script type="text/javascript" src="../script/api.js"></script>
+<script type="text/javascript" src="../script/globalApp.js"></script>
+<script type="text/javascript" src="../script/libs/zepto.js"></script>
+
+<script type="text/javascript">
+    apiready = function() {
+
+    };
+
+    $(function() {
+        $(".publish-wrap").on('click', '.flex25', function() {
+            var content = $(this).find('p')[0].innerText;
+            var frm_name = $(this).find('p').data("frmname");
+           
+            var id = $(this).find('p')[0].id;
+
+            // if (content == '关注' || content == '投票' || content == '转发' || content == '下载' || content == '激活' || content == '注册') {
+            //     openWinSimple(); //打开简单悬赏页面
+            // }
+            openWinSimple(); //打开简单悬赏页面
+            
+            $api.setStorage("stepContent","添加步骤,收集指定信息");
+            getRewardId();
+            function openWinSimple() {
+          
+                api.openWin({
+                    name: frm_name,
+                    url: "./simple_publish/simple_win.html",
+                    pageParam: {
+                        con: content,
+                        frm_name: frm_name,
+                        id: id
+                    },
+                });
+            }
+        })
+    })
+    function getRewardId() {
+       
+            api.ajax({
+                url: globalData.baseUrl + globalData.getRewardUUID,
+                method: 'GET',
+            }, function(ret, err) {
+                $api.setStorage("rewardId", ret.rewardId);
+            });
+
+        
+
+    }
+</script>
+
+</html>

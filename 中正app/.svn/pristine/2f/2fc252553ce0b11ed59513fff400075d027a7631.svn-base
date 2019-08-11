@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>昵称</title>
+    <link rel="stylesheet" type="text/css" href="../../css/style.css" />
+    <link rel="stylesheet" type="text/css" href="../../css/publish.css" />
+
+    <style>
+        body {
+            background: #f4f4f4;
+        }
+        
+        #app {
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .operation_ul {
+            width: 100%;
+            background: #fff;
+        }
+        
+        .operation_ul li {
+            margin: 0 20px;
+            border-bottom: 1px solid #ddd;
+            height: 45px;
+            line-height: 45px;
+            list-style: none;
+            position: relative;
+            background: #fff;
+        }
+        
+        .operation_ul li:last-child {
+            border-bottom: none;
+        }
+        
+        .operation_ul li i {
+            font-size: 20px;
+            position: absolute;
+            right: 0;
+            top: 0
+        }
+        
+        input {
+            position: absolute;
+            height: 30px;
+            line-height: 30px;
+            top: calc(50% - 15px);
+            left: 50px;
+            width: calc(100% - 50px);
+        }
+    </style>
+</head>
+
+<body>
+    <header id="header" class="header">
+        <div class="back" tapmode onclick="api.closeFrame();"></div>
+        <h1 id="title">修改昵称</h1>
+        <span id="save" class="absolute">保存</span>
+    </header>
+    <div id="app">
+        <ul class="operation_ul">
+            <li>昵称<input id="userName" type="text" placeholder="请输入昵称"> </li>
+        </ul>
+    </div>
+</body>
+<script type="text/javascript" src="../../script/globalApp.js"></script>
+<script type="text/javascript" src="../../script/api.js"></script>
+<script type="text/javascript" src="../../script/libs/zepto.js"></script>
+<script type="text/javascript">
+    apiready = function() {
+        var header = $api.byId('header');
+        $api.fixStatusBar(header);
+        var userId = $api.getStorage('userId');
+
+        $('#save').on('click', function() {
+            var userName = $api.byId('userName').value;
+            console.log(userId)
+            console.log(userName)
+            api.ajax({
+                url: globalData.baseUrl + globalData.updateUserName,
+                method: 'POST',
+                data: {
+                    values: {
+                        userId,
+                        userName
+                    }
+                }
+            }, function(ret, err) {
+                $api.setStorage("userName", userName);
+                // api.execScript({
+                //     frameName: 'frame2',
+                //     script: 'window.initMyCenter&&initMyCenter()'
+                // });
+                api.toast({
+                    msg: '修改成功',
+                    location: 'bottom',
+                    time: 1000
+                });
+                setTimeout(function() {
+                    api.openWin({
+                        name: 'user_settings_win',
+                        url: './user_settings_win.html',
+                        bounces: false,
+                        reload: true
+                    });
+                    api.closeFrame()
+                }, 1000)
+
+
+            });
+        })
+
+    }
+</script>
+
+</html>

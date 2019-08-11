@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>登录</title>
+    <link rel="stylesheet" type="text/css" href="../../css/style.css" />
+    <style>
+        /* #header {
+            background: red;
+            height: 50px;
+            line-height: 50px
+        } */
+
+        #title {
+            position: absolute;
+            bottom: 0;
+        }
+    </style>
+</head>
+
+<body>
+    <header class="header" id="header">
+        <div class="back" tapmode></div>
+        <h1 id="title">222</h1>
+    </header>
+</body>
+<script type="text/javascript" src="../../script/api.js"></script>
+<script type="text/javascript" src="../../script/libs/zepto.js"></script>
+
+<script type="text/javascript">
+    apiready = function() {
+        $api.fixStatusBar(header);
+
+        var header = $api.byId('header');
+        var headerH = $api.offset(header).h;
+        var userInfo = api.pageParam.userInfo;
+        $("#title").html(userInfo.title);
+        $('.back').on('click', function() {
+
+            api.sendEvent({
+                name: 'closeChat',
+            });
+            api.closeFrame();
+        });
+
+        api.addEventListener({　　　　
+            name: 'keyback'
+        }, function(ret, err) {　　　　
+            api.closeFrame({　　　　　　
+                name: 'chatHead_frm'
+            });
+            api.execScript({
+                name: 'chat_frm',
+                script: 'closeFrame();'
+            });　　
+        });
+
+    };
+</script>
+
+</html>

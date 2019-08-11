@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>发布结果</title>
+    <link rel="stylesheet" type="text/css" href="../../css/style.css" />
+    <style>
+        body {
+            background: #ffffff;
+        }
+        
+        .result-wrap {
+            padding-top: 60px;
+            width: 100%;
+            text-align: center;
+            position: relative;
+        }
+        
+        .succ-img {
+            width: 120px;
+        }
+        
+        .complete-btn {
+            height: 40px;
+            line-height: 40px;
+            background: #1cbb9e;
+            color: #fff;
+            margin: 20px auto;
+            border-radius: 40px;
+            box-shadow: 0 1px 5px 1px #1cbb9ec5;
+            width: 90%;
+        }
+        
+        .h40 {
+            line-height: 40px
+        }
+    </style>
+</head>
+
+<body>
+    <div class="result-wrap">
+        <img class="img succ-img" src="../../image/success.png" alt="">
+        <div class="h40"><span class="blue-txt">关注</span>悬赏&nbsp&nbsp发布成功</div>
+        <div class="h40 on" tapmode onclick="openWinMyreward()">我的发布</div>
+        <button class=" btn complete-btn " tapmode onclick="openWinPublish() ">完成</button>
+    </div>
+</body>
+<script type="text/javascript " src="../../script/api.js "></script>
+<script type="text/javascript " src="../../script/libs/zepto.js "></script>
+
+<script type="text/javascript ">
+    apiready = function() {
+
+        // var pageParam = api.pageParam;
+        // alert(pageParam.con)
+        // console.log(pageParam)
+    };
+
+
+    function openWinPublish() {
+        api.openWin({
+            name: 'publish_win',
+            url: '../publish_win.html',
+            bounces: false,
+            pageParam: {
+                key: 'value'
+            },
+        });
+    }
+
+    function openWinMyreward() {
+        api.openWin({
+            name: 'manage_win',
+            url: '../manage_win.html',
+            bounces: false,
+            pageParam: {
+                key: 'value'
+            },
+        });
+    }
+</script>
+
+</html>

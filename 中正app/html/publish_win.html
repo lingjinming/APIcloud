@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>发布</title>
+    <link rel="stylesheet" type="text/css" href="../css/style.css" />
+    <style>
+        header {
+            width: 100%;
+        }
+    </style>
+</head>
+
+<body>
+    <header id="header" class="header">
+        <div class="back" tapmode onclick="api.closeWin();"></div>
+        <h1>选择发布类别</h1>
+    </header>
+</body>
+<script type="text/javascript" src="../script/api.js"></script>
+<script type="text/javascript">
+    apiready = function() {
+        var header = $api.byId('header');
+        $api.fixStatusBar(header);
+        var headerH = $api.offset(header).h;
+
+        // 打开注册Frame
+        api.openFrame({
+            name: 'publish_frm',
+            url: './publish_frm.html',
+            rect: {
+                marginTop: headerH,
+                w: 'auto',
+                h: 'auto'
+            },
+            slidBackEnabled: false,
+            bounces: false,
+            softInputBarEnabled: false //不显示键盘上方的工具条
+        });
+    };
+</script>
+
+</html>

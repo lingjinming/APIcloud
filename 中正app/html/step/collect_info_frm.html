@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>收集信息</title>
+    <link rel="stylesheet" type="text/css" href="../../css/style.css" />
+    <link rel="stylesheet" type="text/css" href="../../css/publish.css" />
+    <style>
+        .info-con-items {
+            height: auto;
+            line-height: 1.5;
+            padding: 10px 0;
+        }
+        
+        .info-con-items2 {
+            margin: 0 20px;
+        }
+        
+        .img-upload {
+            margin-left: 0;
+            margin-top: 5px;
+        }
+        
+        .none {
+            display: none
+        }
+    </style>
+</head>
+
+<body>
+    <div class="info-wrap">
+        <div class="info-con">
+            <div class="info-con-items2">
+                <span style="width: 120px">收集注册手机号:</span>
+                <select name="select" id="select">   
+                    <option value="1">手机号</option>   
+                    <option value="2">其它信息</option>                           
+                </select>
+            </div>
+        </div>
+        <div class="info-con none">
+            <div class="info-con-items2">
+                <span style="width: 120px">收集其它信息:</span>
+                <input name="" id="content" rows="5" placeholder="最多40个字" autofocus>
+            </div>
+        </div>
+        <div class="btn confirm-publish-btn" id="confirm-submit-btn">提交</div>
+    </div>
+</body>
+<script type="text/javascript" src="../../script/api.js"></script>
+<script type="text/javascript" src="../../script/libs/zepto.js"></script>
+<script type="text/javascript" src="../../script/globalApp.js"></script>
+
+<script type="text/javascript">
+   var stype = "1";
+    apiready = function() {
+
+        // var pageParam = api.pageParam;
+        // alert(pageParam.con)
+        // console.log(pageParam)
+    };
+
+    $(function() {
+            $("#confirm-submit-btn").on('click', function() {
+              var content = $api.byId("content").value;
+               if(stype == "2"){
+                 if(content == ''){
+                   api.toast({
+                    msg: '请输入收集信息',
+                    location: 'bottom'
+                  });
+                   return false;
+                 }
+               
+               }else{
+                content = $api.getStorage('tel');
+               }
+           var params = {
+                   stype:stype,
+                   rewardId:$api.getStorage("rewardId"),
+                   content:content,		
+                 };
+               api.ajax({
+                 url: globalData.baseUrl + globalData.collectInformation,
+                 method: 'post',
+                 data: {
+                    values: params,
+                }
+            }, function(ret, err) {
+               if(ret){
+                 api.closeWin();
+                  api.toast({
+                        msg: '提交成功',
+                        duration: 2000,
+                        location: 'middle'
+                    });
+               
+               }else{
+                api.toast({
+                        msg: '提交失败',
+                        duration: 2000,
+                        location: 'middle'
+                    });
+               
+               }
+            });
+                 
+                 
+                 
+                 
+                 
+                 
+                 
+            
+            });                                           
+    
+
+        // 1: 拿到select对象：
+        // var myselect = document.getElementById("select");
+
+        // // 2： 拿到选中项的索引：
+        // var index = myselect.selectedIndex; // selectedIndex代表的是你所选中项的index
+
+        // // 3: 拿到选中项options的value： 
+        // var val = myselect.options[index].value;
+
+        // // 4: 拿到选中项options的text： 
+        // var txt = myselect.options[index].text;
+        // console.log(val, txt)
+        $("#select").change(function() {
+            var val = $("#select option").not(function() {
+                return !this.selected
+            }).val();
+            if (val == 2) {
+               stype = "2";
+                $('.none').css('display', 'block')
+            } else {
+               stype = "1";
+                $('.none').css('display', 'none')
+            }
+
+        });
+
+    })
+</script>
+
+</html>

@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>赏单列表</title>
+    <link rel="stylesheet" type="text/css" href="../css/style.css" />
+    <style>
+        body {
+            background: #f4f4f4;
+        }
+
+        #app {
+            height: 100vh;
+        }
+
+        .flex-wrap-tabs .flex-con,
+        .flex-wrap-select {
+            height: 40px;
+            line-height: 40px;
+            background: #ffffff;
+            text-align: center;
+            position: relative;
+        }
+        /* .flex-wrap-select {
+            border-bottom: 1px solid #ddd;
+        } */
+
+        .flex-wrap-select::before {
+            position: absolute;
+            content: "";
+            height: 20px;
+            left: 50%;
+            top: 10px;
+            width: 1px;
+            background: #ddd;
+        }
+
+        .flex-wrap-select .icon {
+            transition: all .3s;
+        }
+
+        .flex-wrap-tabs .on::after {
+            position: absolute;
+            content: '';
+            width: 80px;
+            height: 2px;
+            left: calc(50% - 40px);
+            bottom: 1px;
+            background: #1cbb9e;
+            z-index: 2;
+        }
+
+        .rewardList li {
+            position: relative;
+            /* margin-bottom: 10px; */
+            height: 75px;
+            padding: 0 10px;
+            border-top: 1px solid #ddd;
+            /* border-bottom: 1px solid #ddd; */
+            background: #ffffff;
+        }
+
+        .rewardList .typeImg {
+            max-width: 100%;
+            width: 40px;
+            margin-top: 12px;
+            margin-right: 10px;
+        }
+
+        .rewardList .typeCon {
+            width: calc(100% - 60px);
+            position: relative;
+        }
+
+        .typeCon h3 {
+            height: 40px;
+            line-height: 40px;
+            font-size: 18px;
+            margin-top: 5px;
+        }
+
+        .typeInfoDiv {
+            width: 100%;
+        }
+
+        .typeInfoDiv .typeInfoP {
+            float: left;
+            /* width: calc(50% - 50px); */
+            height: 25px;
+            line-height: 25px;
+            position: relative;
+            margin-right: 5px;
+        }
+
+        .typeInfoDiv .typeInfoP:last-child {
+            /* width: 100px; */
+            float: right
+        }
+
+        .rewardList {
+            height: calc(100vh - 80px);
+            overflow-y: auto
+        }
+    </style>
+</head>
+
+<body>
+    <div id="app">
+        <header id="header">
+            <div class="flex-wrap flex-wrap-tabs border-b title" id="tabs">
+                <div class="flex-con on" data-type=0>全部</div>
+                <div class="flex-con" data-type=1>简单</div>
+                <div class="flex-con" data-type=2>高价</div>
+            </div>
+            <div class="flex-wrap flex-wrap-select">
+                <div class="flex-con on" id="attr">选择类别 <i class="iconfont icon-xiala1"></i></div>
+                <div class="flex-con" id="keyWords">综合排序<i class="iconfont icon-xiala1"></i></div>
+            </div>
+        </header>
+        <ul class="rewardList">
+
+        </ul>
+    </div>
+</body>
+<script type="text/javascript" src="../script/api.js"></script>
+<!-- <script type="text/javascript" src="../script/libs/vue.js"></script> -->
+<script type="text/javascript" src="../script/libs/zepto.js"></script>
+<script type="text/javascript" src="../script/globalApp.js"></script>
+
+<script type="text/javascript">
+    var rewardType = '';
+    var rewardAttribute = '';
+    var condition = '';
+    var itemArray = [];
+
+    apiready = function() {
+        queryAllList();
+        getItems();
+        api.addEventListener({
+            name: 'swiperight'
+        }, function(ret, err){
+
+        });
+    }
+
+    function getItems() {
+        var retype = rewardType;
+        if (retype == "") {
+            retype = "0";
+        }
+        api.ajax({
+            url: globalData.baseUrl + globalData.getAttributeCode,
+            method: 'get',
+            data: {
+                values: {
+                    reType: retype
+                }
+            }
+        }, function(ret, err) {
+            if (ret) {
+                for (var i = 0; i < ret.length; i++) {
+                    itemArray.push({
+                        id: ret[i]['id'],
+                        text: ret[i]['text'],
+                        status: ret[i]['status']
+                    });
+                }
+
+            }
+
+        });
+    }
+
+
+
+    function queryAllList() {
+        api.showProgress({
+            title: '',
+            text: '加载中...',
+            modal: true
+        });
+        api.ajax({
+            url: globalData.baseUrl + globalData.getRewardList,
+            method: 'get',
+            data: {
+                values: {
+                    rewardType: rewardType,
+                    rewardAttribute: rewardAttribute,
+                    condition: condition
+                }
+            }
+        }, function(ret, err) {
+            // alert(11111)
+            //console.log('ret=========' + ret)
+            if (ret) {
+                $('.rewardList').html('');
+                api.refreshHeaderLoadDone();
+                api.parseTapmode();
+                var tHtml = loadHtml(ret);
+                var timer = setTimeout(function() {
+                    $('.rewardList').html(tHtml);
+                    api.hideProgress();
+                    clearTimeout(timer)
+                }, 600)
+            } else {
+                $('.rewardList').html('');
+            }
+        });
+    }
+
+
+    function loadHtml(data) {
+        var tpl = "";
+        if (typeof data == "object" && data.length == 0) return
+
+        for (var i = 0; i < data.length; i++) {
+            var obj = {
+                orderId: data[i].id,
+                earnCount: data[i].earnCount,
+                residueCount: data[i].residueCount
+            }
+            tpl += '<li onclick=appndClick(' + JSON.stringify(obj) + ')><img src="' + data[i].imgUrl + '" alt="" class="typeImg float-l"><div class="typeCon float-l"> <h3>';
+            tpl += '<span class="title">' + data[i].rewardName + '</span><span class="orange-color float-r">' + data[i].bounty + '元</span></h3><div class="typeInfoDiv">';
+            tpl += '<p class="typeInfoP border-r"><span class="orange-color">' + data[i].earnCount + '</span>人已赚</p><p class="typeInfoP">剩<span class="red-color">' + data[i].residueCount + '</span>个</p>';
+            tpl += '<p class="typeInfoP text-right">' + data[i].keyWord + '</p></div></div></li> ';
+        }
+        return tpl;
+    }
+
+    function appndClick(obj) {
+        if (typeof obj == "String") {
+            obj = JSON.parse(obj);
+        }
+        api.openWin({
+            name: 'rewardInfo_win',
+            url: "rewardInfo_win.html",
+            pageParam: {
+                rewardId: obj.orderId,
+                earnCount: obj.earnCount,
+                residueCount: obj.residueCount,
+                openType:'1'
+            },
+        });
+    }
+
+    //var getRewardListUrl = globalData.baseUrl + globalData.getRewardList; //列表接口
+    $("#tabs").on('click', 'div', function() {
+        var innerText = this.innerText;
+        var type = $(this).data('type');
+        if (type == 0) {
+            rewardType = '';
+        } else {
+            rewardType = type;
+        }
+        itemArray = [];
+        rewardAttribute = '';
+        queryAllList();
+        getItems();
+        console.log(type + " " + innerText);
+        $(this).addClass("on").siblings().removeClass("on")
+
+    });
+
+
+    $("#attr").on('click', function() {
+        $(this).addClass("on").siblings().removeClass("on")
+
+        var UIMultiSelector = api.require('UIMultiSelector');
+
+        UIMultiSelector.open({
+            rect: {
+                h: 244
+            },
+            text: {
+                // title: '选择类别',
+                leftBtn: '取消',
+                rightBtn: '确认',
+                selectAll: '全选'
+            },
+            max: 0,
+            singleSelection: true, //参数值为 true 时，忽略参数 max，
+            styles: {
+                mask: 'rgba(0,0,0,0)',
+                title: {
+                    bg: '#f0f0f0'
+                },
+                leftButton: {
+                    w: 80,
+                    h: 35,
+                    marginT: 5,
+                    marginL: 8,
+                    color: '#666',
+                    bg: 'transparent',
+                    size: 14
+                },
+                rightButton: {
+                    w: 80,
+                    h: 35,
+                    marginT: 5,
+                    marginL: 8,
+                    color: '#1cbb9e',
+                    bg: 'transparent',
+                    size: 14
+                },
+                item: {
+                    h: 40,
+                    bg: '#fff',
+                    bgActive: '#fff',
+                    bgHighlight: '#fff',
+                    color: '#666',
+                    active: '#1cbb9e',
+                    highlight: '#1cbb9e',
+                    size: 14,
+                    lineColor: '#ddd',
+                    textAlign: 'center',
+                },
+                icon: {
+                    w: 0,
+                    marginH: 0,
+                }
+            },
+            animation: true,
+            items: itemArray
+        }, function(ret, err) {
+            if (ret) {
+                var retObj = JSON.stringify(ret);
+                if (ret.eventType == "clickLeft") { //点击了取消
+                    UIMultiSelector.close();
+                }
+                if (ret.eventType == "clickRight") { //点击了确定
+                    rewardAttribute = ret.items[0].id;
+                    queryAllList();
+                    UIMultiSelector.close();
+                }
+            }
+        });
+    })
+
+    $("#keyWords").on('click', function() {
+        $(this).addClass("on").siblings().removeClass("on")
+
+        var UIMultiSelector = api.require('UIMultiSelector');
+
+        UIMultiSelector.open({
+            rect: {
+                h: 244
+            },
+            text: {
+                // title: '选择类别',
+                leftBtn: '取消',
+                rightBtn: '确认',
+                selectAll: '全选'
+            },
+            max: 0,
+            singleSelection: true, //参数值为 true 时，忽略参数 max，
+            styles: {
+                mask: 'rgba(0,0,0,0)',
+                title: {
+                    bg: '#f0f0f0'
+                },
+                leftButton: {
+                    w: 80,
+                    h: 35,
+                    marginT: 5,
+                    marginL: 8,
+                    color: '#666',
+                    bg: 'transparent',
+                    size: 14
+                },
+                rightButton: {
+                    w: 80,
+                    h: 35,
+                    marginT: 5,
+                    marginL: 8,
+                    color: '#1cbb9e',
+                    bg: 'transparent',
+                    size: 14
+                },
+                item: {
+                    h: 40,
+                    bg: '#fff',
+                    bgActive: '#fff',
+                    bgHighlight: '#fff',
+                    color: '#666',
+                    active: '#1cbb9e',
+                    highlight: '#1cbb9e',
+                    size: 14,
+                    lineColor: '#ddd',
+                    textAlign: 'center',
+                },
+                icon: {
+                    w: 0,
+                    marginH: 0,
+                }
+            },
+            animation: true,
+            items: [{
+                id: '1',
+                text: '新单优先',
+                status: 'selected'
+            }, {
+                id: '2',
+                text: '赏单价格从高到低',
+                status: 'normal'
+            }]
+        }, function(ret, err) {
+            if (ret) {
+                if (ret.eventType == "clickLeft") { //点击了取消
+                    UIMultiSelector.close();
+                }
+                if (ret.eventType == "clickRight") { //点击了确定
+                    condition = ret.items[0].id;
+                    queryAllList();
+                    UIMultiSelector.close();
+                }
+            } else {
+                console.log(JSON.stringify(err));
+            }
+        });
+
+    })
+</script>
+
+</html>
